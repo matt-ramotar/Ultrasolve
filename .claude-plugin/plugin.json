@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "ultrasolve",
+  "displayName": "Ultrasolve",
+  "description": "Rigorous methods for solving the hardest problems.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Matt Ramotar"
+  },
+  "skills": [
+    "./adapters/claude/skills/"
+  ],
+  "keywords": [
+    "problem-solving",
+    "stuck",
+    "reframing",
+    "analogy",
+    "inversion",
+    "decomposition",
+    "shannon-inspired"
+  ]
+}

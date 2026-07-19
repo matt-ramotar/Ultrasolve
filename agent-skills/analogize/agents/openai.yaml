@@ -1,0 +1,6 @@
+interface:
+  display_name: "Analogize"
+  short_description: "Transfer verified mechanics from structurally similar problems."
+  default_prompt: "Use $analogize to compare source problems, verify the selected analogy, and map only licensed mechanics back."
+policy:
+  allow_implicit_invocation: false

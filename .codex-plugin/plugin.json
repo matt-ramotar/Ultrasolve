@@ -1,0 +1,38 @@
+{
+  "name": "ultrasolve",
+  "version": "0.1.0",
+  "description": "Rigorous methods for solving the hardest problems.",
+  "author": {
+    "name": "Matt Ramotar"
+  },
+  "keywords": [
+    "problem-solving",
+    "stuck",
+    "reframing",
+    "analogy",
+    "inversion",
+    "decomposition",
+    "shannon-inspired"
+  ],
+  "skills": "./agent-skills/",
+  "interface": {
+    "displayName": "Ultrasolve",
+    "shortDescription": "Escape genuinely stuck problems with rigorous lenses.",
+    "longDescription": "Ultrasolve routes well-defined, genuinely stuck problems through six rigorous transformation lenses, then maps the result back to the original constraints and success criteria.",
+    "developerName": "Matt Ramotar",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/matt-ramotar/plugins",
+    "privacyPolicyURL": "https://github.com/matt-ramotar/plugins/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/matt-ramotar/plugins/blob/main/TERMS.md",
+    "capabilities": [
+      "Reason",
+      "Research",
+      "Plan"
+    ],
+    "defaultPrompt": [
+      "Unblock a genuinely stuck problem with the Ultrasolve router.",
+      "Invert this problem, then forward-check the result against the original constraints.",
+      "Decompose this problem into answerable seams and recompose the result."
+    ]
+  }
+}

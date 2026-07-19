@@ -1,0 +1,6 @@
+interface:
+  display_name: "Solve"
+  short_description: "Route genuinely stuck problems through rigorous lenses."
+  default_prompt: "Use $solve to route this well-defined, genuinely stuck problem through the strongest lens and map the result back."
+policy:
+  allow_implicit_invocation: true

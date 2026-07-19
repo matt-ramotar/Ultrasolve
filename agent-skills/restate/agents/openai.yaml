@@ -1,0 +1,6 @@
+interface:
+  display_name: "Restate"
+  short_description: "Reframe a stuck problem without changing its invariants."
+  default_prompt: "Use $restate to create materially different formulations, preserve the invariant ledger, and map the result back."
+policy:
+  allow_implicit_invocation: false

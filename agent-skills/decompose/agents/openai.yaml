@@ -1,0 +1,6 @@
+interface:
+  display_name: "Decompose"
+  short_description: "Split an entangled problem into answerable, recomposable seams."
+  default_prompt: "Use $decompose to compare seams, order answerable questions by information yield, and verify the recomposed result."
+policy:
+  allow_implicit_invocation: false
