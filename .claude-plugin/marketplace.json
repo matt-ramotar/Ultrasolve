@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "matt-ramotar",
+  "version": "0.1.0",
+  "description": "Rigorous methods for solving the hardest problems.",
+  "owner": {
+    "name": "Matt Ramotar"
+  },
+  "plugins": [
+    {
+      "name": "ultrasolve",
+      "description": "Rigorous methods for solving the hardest problems.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

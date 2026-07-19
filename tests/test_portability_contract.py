@@ -325,6 +325,31 @@ class TestPortableSkillCorpus(PortabilityContractTestCase):
 
 
 class TestClaudeAdapter(PortabilityContractTestCase):
+    def test_claude_marketplace_exposes_root_plugin(self) -> None:
+        marketplace_path = PLUGIN_ROOT / ".claude-plugin/marketplace.json"
+        self.assertTrue(marketplace_path.is_file(), "Claude marketplace manifest is required")
+        marketplace = json.loads(read_text(marketplace_path))
+
+        self.assertEqual(
+            "https://json.schemastore.org/claude-code-marketplace.json",
+            marketplace.get("$schema"),
+        )
+        self.assertEqual("matt-ramotar", marketplace.get("name"))
+        self.assertEqual("0.1.0", marketplace.get("version"))
+        self.assertEqual("Matt Ramotar", marketplace.get("owner", {}).get("name"))
+
+        plugins = marketplace.get("plugins", [])
+        self.assertEqual(1, len(plugins), "Claude marketplace must expose one plugin")
+        entry = plugins[0]
+        self.assertEqual("ultrasolve", entry.get("name"))
+        self.assertEqual("./", entry.get("source"))
+        self.assertEqual("productivity", entry.get("category"))
+        self.assertNotIn(
+            "version",
+            entry,
+            "plugin.json is the single authority for the installed plugin version",
+        )
+
     def test_claude_adapter_has_exact_thin_wrapper_surface(self) -> None:
         self.assertTrue(CLAUDE_SKILLS_ROOT.is_dir(), "Claude adapter skill directory is required")
         actual = {path.name for path in CLAUDE_SKILLS_ROOT.iterdir() if path.is_dir()}
