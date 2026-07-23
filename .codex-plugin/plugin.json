@@ -1,6 +1,6 @@
 {
   "name": "ultrasolve",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Rigorous methods for solving the hardest problems.",
   "author": {
     "name": "Matt Ramotar"
@@ -17,12 +17,12 @@
   "skills": "./agent-skills/",
   "interface": {
     "displayName": "Ultrasolve",
-    "shortDescription": "Escape genuinely stuck problems with rigorous lenses.",
-    "longDescription": "Ultrasolve routes well-defined, genuinely stuck problems through six rigorous transformation lenses, then maps the result back to the original constraints and success criteria.",
+    "shortDescription": "Define the real problem, then escape it with rigorous lenses.",
+    "longDescription": "Ultrasolve states the unstated problem behind a request, then routes well-defined, genuinely stuck problems through six rigorous transformation lenses, then maps the result back to the original constraints and success criteria.",
     "developerName": "Matt Ramotar",
     "category": "Productivity",
-    "websiteURL": "https://github.com/matt-ramotar/plugins",
-    "privacyPolicyURL": "https://github.com/matt-ramotar/plugins/blob/main/PRIVACY.md",
+    "websiteURL": "https://github.com/matt-ramotar/Ultrasolve",
+    "privacyPolicyURL": "https://github.com/matt-ramotar/Ultrasolve/blob/main/PRIVACY.md",
     "termsOfServiceURL": "https://github.com/matt-ramotar/plugins/blob/main/TERMS.md",
     "capabilities": [
       "Reason",

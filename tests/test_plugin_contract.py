@@ -7,27 +7,32 @@ are derived from this file rather than hard-coded.
 from __future__ import annotations
 
 import json
+import os
 import re
 import unittest
 from pathlib import Path
 
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY_ROOT = PLUGIN_ROOT.parents[1]
-DESIGN_DOC = REPOSITORY_ROOT / "docs/superpowers/specs/2026-07-19-ultrasolve-plugin-design.md"
-PLAN_DOC = REPOSITORY_ROOT / "docs/superpowers/plans/2026-07-19-ultrasolve-plugin-revision.md"
-PORTABILITY_DESIGN_DOC = (
-    REPOSITORY_ROOT / "docs/superpowers/specs/2026-07-19-ultrasolve-portability-design.md"
-)
-PORTABILITY_PLAN_DOC = (
-    REPOSITORY_ROOT / "docs/superpowers/plans/2026-07-19-ultrasolve-portability.md"
-)
-OLD_PLUGIN_ROOT = REPOSITORY_ROOT / "plugins/hard-problems"
-OLD_DESIGN_DOC = REPOSITORY_ROOT / "docs/superpowers/specs/2026-07-19-hard-problems-plugin-design.md"
-OLD_PLAN_DOC = REPOSITORY_ROOT / "docs/superpowers/plans/2026-07-19-hard-problems-plugin-revision.md"
+STANDALONE_MARKETPLACE = PLUGIN_ROOT / ".claude-plugin/marketplace.json"
+OLD_PLUGIN_ROOT = PLUGIN_ROOT / "plugins/hard-problems"
+OLD_DOC_FILENAMES = {
+    "2026-07-19-hard-problems-plugin-design.md",
+    "2026-07-19-hard-problems-plugin-revision.md",
+}
 
-SKILLS = ("solve", "simplify", "analogize", "restate", "generalize", "decompose", "invert")
-LEAVES = SKILLS[1:]
+SKILLS = (
+    "solve",
+    "define",
+    "simplify",
+    "analogize",
+    "restate",
+    "generalize",
+    "decompose",
+    "invert",
+)
+MODEL_INVOCABLE = SKILLS[:2]
+LEAVES = SKILLS[2:]
 PORTABLE_ROOT = PLUGIN_ROOT / "agent-skills"
 CLAUDE_SKILLS_ROOT = PLUGIN_ROOT / "adapters/claude/skills"
 OLD_SKILL_IDENTIFIERS = (
@@ -51,6 +56,9 @@ EVAL_CASES = (
     "invert",
     "debugging-boundary",
     "map-back",
+    "define",
+    "define-activation",
+    "define-nonactivation",
 )
 DIRECT_EVAL_COMMANDS = {
     "simplify": "simplify",
@@ -60,20 +68,31 @@ DIRECT_EVAL_COMMANDS = {
     "decompose": "decompose",
     "invert": "invert",
     "map-back": "solve",
+    "define": "define",
 }
-READ_ENABLED_EVAL_CASES = {"activation", "router-read-order", "map-back", *LEAVES}
-ANTI_LEAK_EVAL_CASES = {"activation", "router-read-order", "map-back"}
+READ_ENABLED_EVAL_CASES = {
+    "activation",
+    "router-read-order",
+    "map-back",
+    "define",
+    "define-activation",
+    "define-nonactivation",
+    *LEAVES,
+}
+ANTI_LEAK_EVAL_CASES = {"activation", "router-read-order", "map-back", "define-activation"}
 EXPECTED_EVAL_GRADERS = {
     "activation": {
         "acceptance-criteria",
         "automatic-solve",
         "map-back",
+        "no-define",
         "no-eval-read",
         "preserves-requirements",
     },
     "nonactivation": {
         "clamps-above",
         "clamps-below",
+        "no-define",
         "no-solve",
         "preserves-inside",
         "rejects-inverted",
@@ -113,6 +132,7 @@ EXPECTED_EVAL_GRADERS = {
     },
     "debugging-boundary": {
         "bounded-inversion",
+        "no-define",
         "no-solve",
         "no-unsupported-cause",
         "not-replacement",
@@ -124,17 +144,40 @@ EXPECTED_EVAL_GRADERS = {
         "original-criteria",
         "reject-violation",
     },
+    "define": {
+        "decision-point",
+        "mandate-regress",
+        "problem-frame",
+        "problem-level-criteria",
+        "symmetric-hypotheses",
+    },
+    "define-activation": {
+        "automatic-define",
+        "decision-point",
+        "no-eval-read",
+        "no-solve",
+        "problem-frame",
+        "problem-level-criteria",
+    },
+    "define-nonactivation": {"engages-rut", "no-define", "preserves-criteria"},
 }
 EXPECTED_NON_LLM_GRADER_TYPES = {
     ("activation", "automatic-solve"): "tool_used",
+    ("activation", "no-define"): "tool_used",
     ("activation", "no-eval-read"): "tool_used",
+    ("nonactivation", "no-define"): "tool_used",
     ("nonactivation", "no-solve"): "tool_used",
     ("router-read-order", "automatic-solve"): "tool_used",
     ("router-read-order", "no-eval-read"): "tool_used",
     ("router-read-order", "read-decompose"): "tool_used",
     ("router-read-order", "solve-before-read"): "tool_order",
+    ("debugging-boundary", "no-define"): "tool_used",
     ("debugging-boundary", "no-solve"): "tool_used",
     ("map-back", "no-eval-read"): "tool_used",
+    ("define-activation", "automatic-define"): "tool_used",
+    ("define-activation", "no-solve"): "tool_used",
+    ("define-activation", "no-eval-read"): "tool_used",
+    ("define-nonactivation", "no-define"): "tool_used",
 }
 
 
@@ -245,6 +288,17 @@ def strip_url_destinations(text: str) -> str:
     return re.sub(r"https?://[^\s)>]+", "", text, flags=re.I)
 
 
+def standalone_files() -> list[Path]:
+    """Return checkout files without traversing Git metadata or bytecode caches."""
+    files: list[Path] = []
+    for directory, directories, filenames in os.walk(PLUGIN_ROOT):
+        directories[:] = [
+            name for name in directories if name not in {".git", "__pycache__"}
+        ]
+        files.extend(Path(directory) / filename for filename in filenames)
+    return files
+
+
 class PluginContractTestCase(unittest.TestCase):
     def skill_path(self, skill: str) -> Path:
         return PORTABLE_ROOT / skill / "SKILL.md"
@@ -273,8 +327,8 @@ class PluginContractTestCase(unittest.TestCase):
     def public_files(self) -> list[Path]:
         return [
             path
-            for path in PLUGIN_ROOT.rglob("*")
-            if path.is_file() and "tests" not in path.relative_to(PLUGIN_ROOT).parts
+            for path in standalone_files()
+            if "tests" not in path.relative_to(PLUGIN_ROOT).parts
         ]
 
     def public_markdown(self) -> str:
@@ -289,8 +343,18 @@ class PluginContractTestCase(unittest.TestCase):
 
 class TestIdentityAndSurface(PluginContractTestCase):
     def test_plugin_directory_has_final_path(self) -> None:
-        expected_root = (REPOSITORY_ROOT / "plugins/ultrasolve").resolve()
-        self.assertEqual(expected_root, PLUGIN_ROOT.resolve())
+        self.assertFalse(
+            (PLUGIN_ROOT / "plugins/ultrasolve").exists(),
+            "standalone checkout must not nest a marketplace-repository plugin path",
+        )
+        self.assertTrue(
+            (PLUGIN_ROOT / ".claude-plugin/plugin.json").is_file(),
+            "standalone root must own the Claude plugin manifest",
+        )
+        self.assertTrue(
+            (PLUGIN_ROOT / ".codex-plugin/plugin.json").is_file(),
+            "standalone root must own the Codex plugin manifest",
+        )
 
     def test_manifest_has_final_identity_and_source_faithful_description(self) -> None:
         manifest_path = PLUGIN_ROOT / ".claude-plugin/plugin.json"
@@ -298,7 +362,7 @@ class TestIdentityAndSurface(PluginContractTestCase):
         manifest = json.loads(read_text(manifest_path))
         self.assertEqual("ultrasolve", manifest.get("name"))
         self.assertEqual("Ultrasolve", manifest.get("displayName"))
-        self.assertEqual("0.1.0", manifest.get("version"))
+        self.assertEqual("0.2.0", manifest.get("version"))
         self.assertEqual(
             "https://json.schemastore.org/claude-code-plugin-manifest.json",
             manifest.get("$schema"),
@@ -315,11 +379,10 @@ class TestIdentityAndSurface(PluginContractTestCase):
         )
 
     def test_obsolete_canonical_doc_filenames_are_absent(self) -> None:
-        for path in (OLD_DESIGN_DOC, OLD_PLAN_DOC):
-            self.assertFalse(
-                path.exists(),
-                f"obsolete canonical documentation remains: {path}",
-            )
+        stale = [
+            path for path in standalone_files() if path.name in OLD_DOC_FILENAMES
+        ]
+        self.assertEqual([], stale, f"obsolete canonical documentation remains: {stale}")
 
     def test_codex_and_claude_manifests_share_identity(self) -> None:
         claude_path = PLUGIN_ROOT / ".claude-plugin/plugin.json"
@@ -341,40 +404,42 @@ class TestIdentityAndSurface(PluginContractTestCase):
         self.assertEqual(["./adapters/claude/skills/"], normalized_claude_skills)
         self.assertEqual("./agent-skills/", codex.get("skills"))
 
-    def test_root_marketplace_publishes_ultrasolve(self) -> None:
-        marketplace_path = REPOSITORY_ROOT / ".agents/plugins/marketplace.json"
-        self.assertTrue(marketplace_path.is_file(), "root marketplace manifest is required")
-        marketplace = json.loads(read_text(marketplace_path))
-        entries = [
-            entry for entry in marketplace.get("plugins", [])
-            if entry.get("name") == "ultrasolve"
-        ]
-        self.assertEqual(1, len(entries), "marketplace must list Ultrasolve exactly once")
+    def test_standalone_marketplace_publishes_ultrasolve(self) -> None:
+        self.assertTrue(
+            STANDALONE_MARKETPLACE.is_file(),
+            "standalone Claude marketplace manifest is required",
+        )
+        marketplace = json.loads(read_text(STANDALONE_MARKETPLACE))
+        self.assertEqual(
+            "https://json.schemastore.org/claude-code-marketplace.json",
+            marketplace.get("$schema"),
+        )
+        self.assertEqual("matt-ramotar", marketplace.get("name"))
+        self.assertEqual("0.2.0", marketplace.get("version"))
+        self.assertEqual("Matt Ramotar", marketplace.get("owner", {}).get("name"))
+        entries = marketplace.get("plugins", [])
+        self.assertEqual(1, len(entries), "marketplace must expose exactly one plugin")
         self.assertEqual(
             {
                 "name": "ultrasolve",
-                "source": {"source": "local", "path": "./plugins/ultrasolve"},
-                "policy": {
-                    "installation": "AVAILABLE",
-                    "authentication": "ON_INSTALL",
-                },
-                "category": "Productivity",
+                "description": "Rigorous methods for solving the hardest problems.",
+                "source": "./",
+                "category": "productivity",
             },
             entries[0],
         )
+        self.assertNotIn(
+            "version",
+            entries[0],
+            "plugin.json remains the installed plugin-version authority",
+        )
 
     def test_public_structural_artifacts_have_only_canonical_identity(self) -> None:
-        artifacts = [
-            *self.public_files(),
-            DESIGN_DOC,
-            PLAN_DOC,
-            PORTABILITY_DESIGN_DOC,
-            PORTABILITY_PLAN_DOC,
-        ]
+        artifacts = self.public_files()
         for path in artifacts:
             self.assertTrue(path.is_file(), f"missing structural artifact: {path}")
             structural_text = strip_url_destinations(read_text(path))
-            relative = path.relative_to(REPOSITORY_ROOT)
+            relative = path.relative_to(PLUGIN_ROOT)
             self.assertNotIn("hard-problems", structural_text, f"stale plugin ID in {relative}")
             self.assertNotRegex(
                 structural_text,
@@ -394,77 +459,16 @@ class TestIdentityAndSurface(PluginContractTestCase):
             self.assertNotIn("UltraSolve", structural_text, f"noncanonical casing in {relative}")
             self.assertNotIn("ultra-solve", structural_text, f"noncanonical plugin ID in {relative}")
 
-    def test_design_records_name_screening_limit_and_publication_hold(self) -> None:
-        self.assertTrue(DESIGN_DOC.is_file(), f"renamed design is required: {DESIGN_DOC}")
-        screening = markdown_section(read_text(DESIGN_DOC), r"name screening|trademark")
-        self.assertTrue(screening, "design needs a name-screening section")
-        screening_without_urls = strip_url_destinations(screening)
-        screening_flat = re.sub(r"\s+", " ", screening_without_urls)
-        screening_statements = re.split(r"(?<=[.!?])\s+", screening_flat)
-        self.assertIn("2026-07-19", screening_flat)
-
-        exact_record_statements = [
-            statement for statement in screening_statements if "75942305" in statement
-        ]
-        self.assertEqual(
-            1,
-            len(exact_record_statements),
-            "screening must identify exact-name USPTO record 75942305 once",
-        )
-        exact_record_statement = exact_record_statements[0]
-        self.assertRegex(exact_record_statement, r"(?i)\bexact-name\b")
-        self.assertRegex(exact_record_statement, r"(?i)\bUSPTO\b")
-        self.assertRegex(exact_record_statement, r"(?i)\bdead\b")
-        self.assertRegex(exact_record_statement, r"(?i)\bunrelated\b")
-        self.assertNotIn(
-            "75279620",
-            exact_record_statement,
-            "live close mark 75279620 must not be grouped with exact-name dead records",
-        )
-
-        live_close_mark_statements = [
-            statement for statement in screening_statements if "75279620" in statement
-        ]
-        self.assertEqual(
-            1,
-            len(live_close_mark_statements),
-            "screening must identify live close mark 75279620 once",
-        )
-        live_close_mark_statement = live_close_mark_statements[0]
-        self.assertRegex(live_close_mark_statement, r"(?i)\blive\b")
-        self.assertRegex(live_close_mark_statement, r"(?i)\brenewed\b")
-        self.assertRegex(live_close_mark_statement, r"(?i)\bclose[- ]mark\b")
-        self.assertRegex(live_close_mark_statement, r"(?i)\bclass-separated\b")
-        self.assertRegex(live_close_mark_statement, r"(?i)\bnon-software\b")
-        self.assertNotRegex(
-            live_close_mark_statement,
-            r"(?i)\bexact(?:-name)?\b",
-            "live close mark 75279620 must not be described as an exact-name record",
-        )
-
-        for registry in ("WIPO", "TMview"):
-            self.assertRegex(
-                screening_flat,
-                rf"(?i)(?:\b{registry}\b[^.]{{0,160}}\binconclusive\b|"
-                rf"\binconclusive\b[^.]{{0,160}}\b{registry}\b)",
-                f"design must tie {registry} coverage to its inconclusive status",
-            )
-        self.assertIn(
-            "This screening is not legal clearance.",
-            screening,
-        )
-        self.assertEqual(
-            1,
-            screening.lower().count("legal clearance"),
-            "screening must contain only the exact legal-clearance disclaimer",
-        )
+    def test_readme_records_publication_hold(self) -> None:
+        readme = read_text(PLUGIN_ROOT / "README.md")
         self.assertRegex(
-            screening_flat,
-            r"(?i)(?:publication.{0,40}\bhold\b|\bhold\b.{0,40}publication)",
-            "design must explicitly hold publication after the inconclusive screening",
+            re.sub(r"\s+", " ", readme),
+            r"(?i)(?:publication.{0,40}\b(?:hold|held)\b|"
+            r"\b(?:hold|held)\b.{0,40}publication)",
+            "standalone documentation must preserve the publication hold",
         )
 
-    def test_skill_surface_is_exactly_the_router_and_six_leaves(self) -> None:
+    def test_skill_surface_is_exactly_the_entries_and_six_leaves(self) -> None:
         self.assertTrue(PORTABLE_ROOT.is_dir(), "portable skill corpus is required")
         portable = {path.name for path in PORTABLE_ROOT.iterdir() if path.is_dir()}
         self.assertEqual(set(SKILLS), portable)
@@ -483,13 +487,14 @@ class TestIdentityAndSurface(PluginContractTestCase):
 
 
 class TestRouterContract(PluginContractTestCase):
-    def test_only_router_is_model_invocable(self) -> None:
-        router_fields = frontmatter(self.claude_skill_path("solve"))
-        self.assertNotEqual("true", router_fields.get("disable-model-invocation", "").lower())
-        self.assertTrue(
-            self.codex_allows_implicit_invocation("solve"),
-            "Codex must allow implicit invocation only for the router",
-        )
+    def test_exactly_the_entries_are_model_invocable(self) -> None:
+        for entry in MODEL_INVOCABLE:
+            fields = frontmatter(self.claude_skill_path(entry))
+            self.assertNotEqual("true", fields.get("disable-model-invocation", "").lower())
+            self.assertTrue(
+                self.codex_allows_implicit_invocation(entry),
+                f"Codex must allow implicit invocation for entry {entry}",
+            )
         for leaf in LEAVES:
             fields = frontmatter(self.claude_skill_path(leaf))
             self.assertEqual(
@@ -511,6 +516,11 @@ class TestRouterContract(PluginContractTestCase):
                 router.count(path),
                 f"solve must name {leaf}'s exact sibling path once",
             )
+        self.assertEqual(
+            1,
+            router.count("../define/SKILL.md"),
+            "solve must name the define handoff path exactly once",
+        )
         self.assertRegex(
             router,
             r"(?is)(?:read|load).{0,160}selected sibling.{0,240}"
@@ -718,11 +728,106 @@ class TestLeafContracts(PluginContractTestCase):
         self.assertRegex(text, r"(?s)forward.{0,80}(?:candidate )?plan.{0,160}replay.{0,120}(?:actual )?current state")
 
 
+class TestDefineContract(PluginContractTestCase):
+    def define_text(self) -> str:
+        return self.skill_text("define")
+
+    def test_define_skill_has_house_structure(self) -> None:
+        text = self.define_text()
+        self.assert_heading(text, r"(?i)direct-invocation boundaries", "define needs boundaries")
+        self.assert_heading(text, r"(?i)provenance", "define needs provenance")
+        self.assert_heading(text, r"(?i)entry contract", "define needs an entry contract")
+        self.assert_heading(text, r"(?im)^method$", "define needs a method section")
+        self.assert_heading(text, r"(?i)compact example", "define needs a compact example")
+        self.assert_heading(text, r"(?i)result and handoff", "define needs result-and-handoff")
+        self.assert_heading(text, r"(?i)failure modes", "define needs failure modes")
+        self.assertNotRegex(
+            "\n".join(markdown_headings(text)),
+            r"(?i)map.?back",
+            "define owes no map-back section",
+        )
+
+    def test_define_method_pins_ledger_marks_and_decision_point(self) -> None:
+        text = re.sub(r"\s+", " ", self.define_text().lower())
+        self.assertIn("observation, constraint, stake, or proposal", text)
+        self.assertRegex(text, r"if every proposal were never built")
+        self.assertIn("one rung past", text)
+        for mark in ("confirmed", "open", "assumed"):
+            self.assertIn(mark, text)
+        self.assertRegex(text, r"merely worse.{0,60}metric artifact.{0,60}no problem")
+        self.assertRegex(text, r"do-nothing or smallest-credible")
+        self.assertIn("no phases, durations, or workstreams", text)
+        self.assertIn("two to four closed confirmation questions", text)
+        self.assertIn("a deadline alone is not that reaffirmation", text)
+        self.assertIn("solution-complete is not problem-resolved", text)
+
+    def test_define_handoff_contract_is_lossless(self) -> None:
+        text = re.sub(r"\s+", " ", self.define_text().lower())
+        self.assertIn(
+            "`p`, observable success criteria, fixed facts, constraints, "
+            "non-goals, and missing domain facts",
+            text,
+        )
+        self.assertIn("non-goals hand off as constraints", text)
+        self.assertRegex(
+            text,
+            r"open or assumed marks travel with the contract together with "
+            r"their settling questions",
+        )
+        self.assertRegex(text, r"hands the contract fields to that router's state step verbatim")
+        self.assertRegex(
+            text,
+            r"(?s)new stakeholder facts.{0,200}unreachable.{0,160}assumed"
+            r".{0,120}unresolved mark",
+        )
+
+    def test_router_adopts_define_contract(self) -> None:
+        router = re.sub(r"\s+", " ", self.skill_text("solve").lower())
+        self.assertIn("adopt its non-goals as constraints", router)
+        self.assertRegex(
+            router,
+            r"carry any open or assumed marks.{0,80}settling questions"
+            r".{0,80}invariant ledger",
+        )
+        self.assertRegex(router, r"open with a named owner is exempt")
+        self.assertRegex(router, r"restate that status alongside `s`")
+        self.assertRegex(
+            router,
+            r"a carried stakeholder question marked assumed.{0,80}"
+            r"named owner is unreachable.{0,80}likewise exempt"
+            r".{0,100}mark counts as the unresolved fact for draft routing",
+        )
+
+        technique_selection = re.sub(
+            r"\s+",
+            " ",
+            read_text(
+                PORTABLE_ROOT / "solve/references/technique-selection.md"
+            ).lower(),
+        )
+        self.assertRegex(
+            technique_selection,
+            r"a mandate explicitly labeled open or assumed counts as stated for routing"
+            r".{0,80}remains draft.{0,80}its settling question travels with it",
+        )
+
+    def test_define_is_absent_from_lens_table(self) -> None:
+        table = markdown_section(self.skill_text("solve"), r"sibling leaf paths")
+        self.assertTrue(table, "router needs its sibling leaf table")
+        self.assertNotIn("define", table.lower())
+
+    def test_define_provenance_disclaims_shannon(self) -> None:
+        text = self.define_text()
+        self.assertIn("Nothing here derives from Shannon", text)
+        for source in ("Polya", "Duncker", "Keeney", "Chamberlin"):
+            self.assertIn(source, text)
+
+
 class TestDocumentationAndEvals(PluginContractTestCase):
     def grader_path(self, case: str, stem: str) -> Path:
         return PLUGIN_ROOT / "evals/behavioral/v1" / case / "graders" / f"{stem}.md"
 
-    def test_readme_exposes_exactly_the_seven_final_commands(self) -> None:
+    def test_readme_exposes_exactly_the_final_commands(self) -> None:
         readme = PLUGIN_ROOT / "README.md"
         self.assertTrue(readme.is_file(), "README is required")
         text = read_text(readme)
@@ -733,24 +838,15 @@ class TestDocumentationAndEvals(PluginContractTestCase):
             r"/(?:shannon|creative-thinking|hard-problems)(?:[\s:`-]|$)",
         )
 
-    def test_readme_links_design_and_testing_guidance(self) -> None:
+    def test_readme_links_standalone_testing_guidance(self) -> None:
         readme = PLUGIN_ROOT / "README.md"
         links = {((readme.parent / target).resolve()) for target in markdown_links(read_text(readme))}
-        self.assertIn(DESIGN_DOC.resolve(), links)
-        self.assertIn(PORTABILITY_DESIGN_DOC.resolve(), links)
-        self.assertIn(PORTABILITY_PLAN_DOC.resolve(), links)
         self.assertIn((PLUGIN_ROOT / "TESTING.md").resolve(), links)
+        self.assertIn((PLUGIN_ROOT / "agent-skills").resolve(), links)
 
-    def test_relative_markdown_links_resolve_in_plugin_design_and_plan_docs(self) -> None:
-        documents = [
-            *PLUGIN_ROOT.rglob("*.md"),
-            DESIGN_DOC,
-            PLAN_DOC,
-            PORTABILITY_DESIGN_DOC,
-            PORTABILITY_PLAN_DOC,
-        ]
+    def test_relative_markdown_links_resolve_in_standalone_tree(self) -> None:
+        documents = [path for path in standalone_files() if path.suffix == ".md"]
         for document in documents:
-            self.assertTrue(document.is_file(), f"referenced documentation is missing: {document}")
             for target in markdown_links(read_text(document)):
                 destination = (document.parent / target).resolve()
                 self.assertTrue(destination.exists(), f"broken link in {document}: {target}")
@@ -764,7 +860,14 @@ class TestDocumentationAndEvals(PluginContractTestCase):
                 f"{case} must invoke its skill as the first print-mode token",
             )
 
-        for case in ("activation", "router-read-order", "nonactivation", "debugging-boundary"):
+        for case in (
+            "activation",
+            "router-read-order",
+            "nonactivation",
+            "debugging-boundary",
+            "define-activation",
+            "define-nonactivation",
+        ):
             prompt = PLUGIN_ROOT / "evals/behavioral/v1" / case / "prompt.md"
             _, body = frontmatter_parts(prompt)
             self.assertFalse(
@@ -960,7 +1063,7 @@ class TestDocumentationAndEvals(PluginContractTestCase):
         self.assertIn("ultrasolve:solve", router_automatic.get("input_match", ""))
         self.assertEqual("1", router_automatic.get("min"))
 
-        for case in ("nonactivation", "debugging-boundary"):
+        for case in ("nonactivation", "debugging-boundary", "define-activation"):
             no_solve = frontmatter(self.grader_path(case, "no-solve"))
             self.assertEqual("tool_used", no_solve.get("type"))
             self.assertEqual("Skill", no_solve.get("tool"))
@@ -968,6 +1071,44 @@ class TestDocumentationAndEvals(PluginContractTestCase):
             self.assertEqual("0", no_solve.get("min"))
             self.assertEqual("0", no_solve.get("max"))
             self.assertEqual("both", no_solve.get("arm"))
+
+        automatic_define = frontmatter(
+            self.grader_path("define-activation", "automatic-define")
+        )
+        self.assertEqual("tool_used", automatic_define.get("type"))
+        self.assertEqual("Skill", automatic_define.get("tool"))
+        self.assertIn("ultrasolve:define", automatic_define.get("input_match", ""))
+        self.assertEqual("1", automatic_define.get("min"))
+        self.assertEqual("with-only", automatic_define.get("arm"))
+
+        no_define = frontmatter(self.grader_path("define-nonactivation", "no-define"))
+        self.assertEqual("tool_used", no_define.get("type"))
+        self.assertEqual("Skill", no_define.get("tool"))
+        self.assertIn("ultrasolve:define", no_define.get("input_match", ""))
+        self.assertEqual("0", no_define.get("min"))
+        self.assertEqual("0", no_define.get("max"))
+        self.assertEqual("both", no_define.get("arm"))
+
+        for case, direction in (
+            ("activation", "solve"),
+            ("nonactivation", "ordinary-work"),
+            ("debugging-boundary", "diagnosis"),
+        ):
+            with self.subTest(case=case):
+                grader = self.grader_path(case, "no-define")
+                fields = frontmatter(grader)
+                self.assertEqual("tool_used", fields.get("type"))
+                self.assertEqual("Skill", fields.get("tool"))
+                self.assertEqual("ultrasolve:define", fields.get("input_match"))
+                self.assertEqual("0", fields.get("min"))
+                self.assertEqual("0", fields.get("max"))
+                self.assertEqual("both", fields.get("arm"))
+                _, body = frontmatter_parts(grader)
+                self.assertEqual(
+                    "The define skill must not fire on this case; "
+                    f"it guards the {direction} direction of the define boundary.",
+                    body,
+                )
 
     def test_router_read_order_combines_deterministic_and_semantic_trace_checks(self) -> None:
         read_call = frontmatter(self.grader_path("router-read-order", "read-decompose"))
@@ -1006,13 +1147,10 @@ class TestFileHygiene(PluginContractTestCase):
     def test_text_artifacts_have_no_trailing_whitespace_and_one_final_newline(self) -> None:
         artifacts = [
             path
-            for path in PLUGIN_ROOT.rglob("*")
-            if path.is_file() and path.suffix in {".md", ".json", ".yaml", ".py"}
+            for path in standalone_files()
+            if path.suffix in {".md", ".json", ".yaml", ".py"}
         ]
-        artifacts.extend(
-            (DESIGN_DOC, PLAN_DOC, PORTABILITY_DESIGN_DOC, PORTABILITY_PLAN_DOC)
-        )
-        self.assertTrue(artifacts, "expected plugin and repository text artifacts")
+        self.assertTrue(artifacts, "expected standalone plugin text artifacts")
         for path in artifacts:
             self.assertTrue(path.is_file(), f"missing text artifact: {path}")
             data = path.read_bytes()

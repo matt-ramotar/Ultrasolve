@@ -33,10 +33,11 @@ content. There is no code and no service behind it that could.
 ## Files the plugin reads
 
 The instructions direct the agent to read files inside the plugin's own
-directory, specifically the router's integrity preflight and the six method
-files. They also permit the agent to use tools already available in your
-host, such as research tools, when facts are missing. Any such use runs
-under your host's permission controls and policies, not under this plugin.
+directory: the definition entry and its references, plus the router's
+integrity preflight and the six method files. They also permit the agent to
+use tools already available in your host, such as research tools, when facts
+are missing. Any such use runs under your host's permission controls and
+policies, not under this plugin.
 
 ## Third-party links
 

@@ -1,6 +1,6 @@
 # Testing Ultrasolve
 
-Deterministic structural checks gate version `0.1.0`. Behavioral model
+Deterministic structural checks gate version `0.2.0`. Behavioral model
 evaluations are stochastic evidence only and require separate approval because
 they spend credits. Do not run a paid Claude or Codex behavioral evaluation as
 part of this adaptation. No behavioral result is claimed for this revision.
@@ -14,15 +14,16 @@ availability claim.
 Run both suites directly, then run discovery as the aggregate proof:
 
 ```sh
-python3 -m unittest plugins.ultrasolve.tests.test_plugin_contract -v
-python3 -m unittest plugins.ultrasolve.tests.test_portability_contract -v
-python3 -m unittest discover -s plugins/ultrasolve/tests -p 'test_*.py'
+python3 -m unittest tests.test_plugin_contract -v
+python3 -m unittest tests.test_portability_contract -v
+python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
-The contracts cover all seven methods, provenance, logical safety, mandatory
-map-back, portable frontmatter, adapter isolation, dual manifests, marketplace
-shape, documentation, native fixture structure, provider-neutral activation,
-and recursive text-file hygiene. Every command must exit zero.
+The contracts cover the definition entry and all seven routed methods,
+provenance, logical safety, mandatory map-back, portable frontmatter, adapter
+isolation, dual manifests, marketplace shape, documentation, native fixture
+structure, provider-neutral activation, and recursive text-file hygiene. Every
+command must exit zero.
 
 ## JSON and diff checks
 
@@ -30,10 +31,11 @@ Parse both plugin manifests and the repository marketplace, then inspect the
 working diff:
 
 ```sh
-python3 -m json.tool plugins/ultrasolve/.claude-plugin/plugin.json >/dev/null
-python3 -m json.tool plugins/ultrasolve/.codex-plugin/plugin.json >/dev/null
+python3 -m json.tool .claude-plugin/plugin.json >/dev/null
+python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
+python3 -m json.tool .codex-plugin/plugin.json >/dev/null
 python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
-git diff --check -- .agents/plugins/marketplace.json README.md plugins/ultrasolve docs/superpowers
+git diff --check -- .
 ```
 
 `git diff --check` checks diffs only. The unit suite's recursive file-hygiene
@@ -46,13 +48,15 @@ Claude Code 2.1.215 or newer is the development baseline:
 
 ```sh
 claude --version
-claude plugin validate plugins/ultrasolve --strict
-claude --plugin-dir plugins/ultrasolve plugin details ultrasolve
+claude plugin validate .claude-plugin/marketplace.json --strict
+claude plugin validate .claude-plugin/plugin.json --strict
+claude --plugin-dir . plugin details ultrasolve
 ```
 
-Strict validation must report a valid manifest and adapter. Runtime details
-must inventory exactly seven skills: one model-invocable `solve` router and six
-manual-only leaves, with no root `skills/` directory or duplicate commands.
+Strict validation must report valid marketplace and plugin manifests plus a
+valid adapter. Runtime details must inventory exactly eight skills: two
+model-invocable entries (`solve`, `define`) and six manual-only leaves, with no
+root `skills/` directory or duplicate commands.
 
 ## Portable and Codex static analysis
 
@@ -61,12 +65,12 @@ embedding a maintainer home directory:
 
 ```sh
 : "${SKILL_VALIDATOR:?Set SKILL_VALIDATOR to skill-creator/scripts/quick_validate.py}"
-for skill in plugins/ultrasolve/agent-skills/*; do python3 "$SKILL_VALIDATOR" "$skill" || exit 1; done
+for skill in agent-skills/*; do python3 "$SKILL_VALIDATOR" "$skill" || exit 1; done
 : "${PLUGIN_EVAL_JS:?Set PLUGIN_EVAL_JS to plugin-eval.js}"
-for skill in plugins/ultrasolve/agent-skills/*; do node "$PLUGIN_EVAL_JS" analyze "$skill" --format json || exit 1; done
+for skill in agent-skills/*; do node "$PLUGIN_EVAL_JS" analyze "$skill" --format json || exit 1; done
 ```
 
-All seven portable skills must pass Agent Skills validation. Record static
+All eight portable skills must pass Agent Skills validation. Record static
 analyzer findings per skill and resolve required fixes; do not treat advisory
 suggestions as behavioral evidence.
 
@@ -80,20 +84,21 @@ export CODEX_HOME="$(mktemp -d /tmp/ultrasolve-codex-home.XXXXXX)"
 codex plugin marketplace add "$(pwd)"
 codex plugin add ultrasolve@matt-ramotar --json >"$CODEX_HOME/install.json"
 codex plugin list --available --json >"$CODEX_HOME/plugin-list.json"
-python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); p=[x for x in d["installed"] if x["pluginId"]=="ultrasolve@matt-ramotar"]; assert len(p)==1 and p[0]["installed"] and p[0]["enabled"] and p[0]["version"]=="0.1.0" and p[0]["installPolicy"]=="AVAILABLE" and p[0]["authPolicy"]=="ON_INSTALL"' "$CODEX_HOME/plugin-list.json"
+python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); p=[x for x in d["installed"] if x["pluginId"]=="ultrasolve@matt-ramotar"]; assert len(p)==1 and p[0]["installed"] and p[0]["enabled"] and p[0]["version"]=="0.2.0" and p[0]["installPolicy"]=="AVAILABLE" and p[0]["authPolicy"]=="ON_INSTALL"' "$CODEX_HOME/plugin-list.json"
 ```
 
 Require the inventory to show `ultrasolve@matt-ramotar` installed and enabled
-at version `0.1.0`. Verify the cached seven-skill inventory and policy, then
+at version `0.2.0`. Verify the cached eight-skill inventory and policy, then
 prove full source/cache parity:
 
 ```sh
-export INSTALLED_ULTRASOLVE="$CODEX_HOME/plugins/cache/matt-ramotar/ultrasolve/0.1.0"
-test "$(find "$INSTALLED_ULTRASOLVE/agent-skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')" = 7
-test "$(rg -l '^  allow_implicit_invocation: true$' "$INSTALLED_ULTRASOLVE/agent-skills" | wc -l | tr -d ' ')" = 1
+export INSTALLED_ULTRASOLVE="$CODEX_HOME/plugins/cache/matt-ramotar/ultrasolve/0.2.0"
+test "$(find "$INSTALLED_ULTRASOLVE/agent-skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')" = 8
+test "$(rg -l '^  allow_implicit_invocation: true$' "$INSTALLED_ULTRASOLVE/agent-skills" | wc -l | tr -d ' ')" = 2
 rg -q '^  allow_implicit_invocation: true$' "$INSTALLED_ULTRASOLVE/agent-skills/solve/agents/openai.yaml"
+rg -q '^  allow_implicit_invocation: true$' "$INSTALLED_ULTRASOLVE/agent-skills/define/agents/openai.yaml"
 test "$(rg -l '^  allow_implicit_invocation: false$' "$INSTALLED_ULTRASOLVE/agent-skills" | wc -l | tr -d ' ')" = 6
-diff -ru plugins/ultrasolve "$INSTALLED_ULTRASOLVE"
+diff -ru --exclude .git . "$INSTALLED_ULTRASOLVE"
 ```
 
 The local marketplace entry is a clean-room validation surface only. It does
@@ -123,7 +128,7 @@ prove the exclusion before any separately approved run:
 
 ```sh
 export EVAL_PLUGIN_ROOT="$(mktemp -d /tmp/ultrasolve-eval-plugin.XXXXXX)"
-rsync -a --delete --exclude evals/ plugins/ultrasolve/ "$EVAL_PLUGIN_ROOT/"
+rsync -a --delete --exclude .git/ --exclude evals/ ./ "$EVAL_PLUGIN_ROOT/"
 test ! -e "$EVAL_PLUGIN_ROOT/evals"
 claude plugin validate "$EVAL_PLUGIN_ROOT" --strict
 ```
@@ -173,13 +178,16 @@ A run is complete only when it has no error, timeout, interruption, or
 cost-ceiling abort; no paid grader was skipped; and every required criterion
 for that arm passes. The CLI aggregate threshold cannot enforce the required
 count of wholly passing runs. Use per-run JSON and treat aggregate scores as a
-convenience only. Behavioral results remain evidence-only for `0.1.0`.
+convenience only. Behavioral results remain evidence-only for `0.2.0`.
 
 | Case | Runs | Ablation | Complete-run claim rule |
 | --- | ---: | --- | --- |
 | `activation` | 5 | `with-without` | 4/5 with-plugin runs |
 | `nonactivation` | 5 | `with-without` | 4/5 in each required arm |
 | `router-read-order` | 3 | `none` | 3/3 |
+| `define` | 3 | `none` | 3/3 |
+| `define-activation` | 5 | `with-without` | 4/5 with-plugin runs |
+| `define-nonactivation` | 5 | `with-without` | 4/5 in each required arm |
 | `simplify` | 3 | `none` | 3/3 |
 | `analogize` | 3 | `none` | 3/3 |
 | `restate` | 3 | `none` | 3/3 |

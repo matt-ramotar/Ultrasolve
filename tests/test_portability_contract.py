@@ -10,12 +10,12 @@ from pathlib import Path
 
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 PORTABLE_ROOT = PLUGIN_ROOT / "agent-skills"
 CLAUDE_SKILLS_ROOT = PLUGIN_ROOT / "adapters/claude/skills"
 
 SKILLS = (
     "solve",
+    "define",
     "simplify",
     "analogize",
     "restate",
@@ -23,20 +23,29 @@ SKILLS = (
     "decompose",
     "invert",
 )
-LEAVES = SKILLS[1:]
-CLAUDE_SKILL_EVAL_CASES = {"activation", "router-read-order", "map-back", *LEAVES}
+MODEL_INVOCABLE = SKILLS[:2]
+LEAVES = SKILLS[2:]
+CLAUDE_SKILL_EVAL_CASES = {
+    "activation",
+    "router-read-order",
+    "map-back",
+    "define",
+    "define-activation",
+    "define-nonactivation",
+    *LEAVES,
+}
 EXPECTED_LEGACY_TESTS = {
     "test_plugin_directory_has_final_path",
     "test_manifest_has_final_identity_and_source_faithful_description",
     "test_obsolete_plugin_directory_is_absent",
     "test_obsolete_canonical_doc_filenames_are_absent",
     "test_codex_and_claude_manifests_share_identity",
-    "test_root_marketplace_publishes_ultrasolve",
+    "test_standalone_marketplace_publishes_ultrasolve",
     "test_public_structural_artifacts_have_only_canonical_identity",
-    "test_design_records_name_screening_limit_and_publication_hold",
-    "test_skill_surface_is_exactly_the_router_and_six_leaves",
+    "test_readme_records_publication_hold",
+    "test_skill_surface_is_exactly_the_entries_and_six_leaves",
     "test_command_wrappers_are_absent",
-    "test_only_router_is_model_invocable",
+    "test_exactly_the_entries_are_model_invocable",
     "test_router_explicitly_loads_each_leaf_from_plugin_root",
     "test_router_enforces_the_shared_contract_and_map_back",
     "test_source_notes_preserve_corrected_publication_date_and_provenance_labels",
@@ -50,9 +59,15 @@ EXPECTED_LEGACY_TESTS = {
     "test_generalize_contract",
     "test_decompose_contract",
     "test_invert_is_logically_safe_and_reenters_debugging",
-    "test_readme_exposes_exactly_the_seven_final_commands",
-    "test_readme_links_design_and_testing_guidance",
-    "test_relative_markdown_links_resolve_in_plugin_design_and_plan_docs",
+    "test_define_skill_has_house_structure",
+    "test_define_method_pins_ledger_marks_and_decision_point",
+    "test_define_handoff_contract_is_lossless",
+    "test_router_adopts_define_contract",
+    "test_define_is_absent_from_lens_table",
+    "test_define_provenance_disclaims_shannon",
+    "test_readme_exposes_exactly_the_final_commands",
+    "test_readme_links_standalone_testing_guidance",
+    "test_relative_markdown_links_resolve_in_standalone_tree",
     "test_manual_only_eval_cases_begin_with_real_slash_invocation",
     "test_versioned_eval_fixtures_match_exact_native_shape",
     "test_read_enabled_eval_cases_block_reads_into_eval_tree",
@@ -291,7 +306,7 @@ class TestPortableSkillCorpus(PortabilityContractTestCase):
         )
         self.assertRegex(
             router,
-            r"all seven.{0,100}skill\.md.{0,120}(?:exist|present).{0,120}"
+            r"all eight.{0,100}skill\.md.{0,120}(?:exist|present).{0,120}"
             r"(?:accessible|readable)",
         )
         self.assertRegex(
@@ -325,31 +340,6 @@ class TestPortableSkillCorpus(PortabilityContractTestCase):
 
 
 class TestClaudeAdapter(PortabilityContractTestCase):
-    def test_claude_marketplace_exposes_root_plugin(self) -> None:
-        marketplace_path = PLUGIN_ROOT / ".claude-plugin/marketplace.json"
-        self.assertTrue(marketplace_path.is_file(), "Claude marketplace manifest is required")
-        marketplace = json.loads(read_text(marketplace_path))
-
-        self.assertEqual(
-            "https://json.schemastore.org/claude-code-marketplace.json",
-            marketplace.get("$schema"),
-        )
-        self.assertEqual("matt-ramotar", marketplace.get("name"))
-        self.assertEqual("0.1.0", marketplace.get("version"))
-        self.assertEqual("Matt Ramotar", marketplace.get("owner", {}).get("name"))
-
-        plugins = marketplace.get("plugins", [])
-        self.assertEqual(1, len(plugins), "Claude marketplace must expose one plugin")
-        entry = plugins[0]
-        self.assertEqual("ultrasolve", entry.get("name"))
-        self.assertEqual("./", entry.get("source"))
-        self.assertEqual("productivity", entry.get("category"))
-        self.assertNotIn(
-            "version",
-            entry,
-            "plugin.json is the single authority for the installed plugin version",
-        )
-
     def test_claude_adapter_has_exact_thin_wrapper_surface(self) -> None:
         self.assertTrue(CLAUDE_SKILLS_ROOT.is_dir(), "Claude adapter skill directory is required")
         actual = {path.name for path in CLAUDE_SKILLS_ROOT.iterdir() if path.is_dir()}
@@ -391,7 +381,7 @@ class TestCodexAdapter(PortabilityContractTestCase):
         self.assertTrue(path.is_file(), "Codex manifest is required")
         manifest = json.loads(read_text(path))
         self.assertEqual("ultrasolve", manifest.get("name"))
-        self.assertEqual("0.1.0", manifest.get("version"))
+        self.assertEqual("0.2.0", manifest.get("version"))
         self.assertEqual("Rigorous methods for solving the hardest problems.", manifest.get("description"))
         self.assertEqual("Matt Ramotar", manifest.get("author", {}).get("name"))
         self.assertEqual(
@@ -412,20 +402,24 @@ class TestCodexAdapter(PortabilityContractTestCase):
         interface = manifest.get("interface", {})
         self.assertEqual("Ultrasolve", interface.get("displayName"))
         self.assertEqual(
-            "Escape genuinely stuck problems with rigorous lenses.",
+            "Define the real problem, then escape it with rigorous lenses.",
             interface.get("shortDescription"),
         )
         self.assertEqual(
-            "Ultrasolve routes well-defined, genuinely stuck problems through six rigorous "
-            "transformation lenses, then maps the result back to the original constraints and "
-            "success criteria.",
+            "Ultrasolve states the unstated problem behind a request, then routes "
+            "well-defined, genuinely stuck problems through six rigorous "
+            "transformation lenses, then maps the result back to the original "
+            "constraints and success criteria.",
             interface.get("longDescription"),
         )
         self.assertEqual("Matt Ramotar", interface.get("developerName"))
         self.assertEqual("Productivity", interface.get("category"))
-        self.assertEqual("https://github.com/matt-ramotar/plugins", interface.get("websiteURL"))
         self.assertEqual(
-            "https://github.com/matt-ramotar/plugins/blob/main/PRIVACY.md",
+            "https://github.com/matt-ramotar/Ultrasolve",
+            interface.get("websiteURL"),
+        )
+        self.assertEqual(
+            "https://github.com/matt-ramotar/Ultrasolve/blob/main/PRIVACY.md",
             interface.get("privacyPolicyURL"),
         )
         self.assertEqual(
@@ -461,23 +455,47 @@ class TestCodexAdapter(PortabilityContractTestCase):
                 self.assertTrue(value, f"empty OpenAI interface value in {path}")
             self.assertIn(f"${name}", sections["interface"]["default_prompt"])
             self.assertEqual({"allow_implicit_invocation"}, set(sections["policy"]))
-            expected = "true" if name == "solve" else "false"
+            expected = "true" if name in MODEL_INVOCABLE else "false"
             self.assertEqual(expected, sections["policy"]["allow_implicit_invocation"])
 
-    def test_repo_marketplace_lists_ultrasolve_once(self) -> None:
-        path = REPOSITORY_ROOT / ".agents/plugins/marketplace.json"
-        self.assertTrue(path.is_file(), "repository marketplace manifest is required")
-        marketplace = json.loads(read_text(path))
-        entries = [entry for entry in marketplace.get("plugins", []) if entry.get("name") == "ultrasolve"]
-        self.assertEqual(1, len(entries))
-        entry = entries[0]
-        self.assertEqual({"name", "source", "policy", "category"}, set(entry))
-        self.assertEqual({"source": "local", "path": "./plugins/ultrasolve"}, entry.get("source"))
+    def test_standalone_marketplace_exposes_root_plugin(self) -> None:
+        claude_path = PLUGIN_ROOT / ".claude-plugin/marketplace.json"
+        self.assertTrue(claude_path.is_file(), "Claude marketplace manifest is required")
+        marketplace = json.loads(read_text(claude_path))
         self.assertEqual(
-            {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
-            entry.get("policy"),
+            "https://json.schemastore.org/claude-code-marketplace.json",
+            marketplace.get("$schema"),
         )
-        self.assertEqual("Productivity", entry.get("category"))
+        self.assertEqual("matt-ramotar", marketplace.get("name"))
+        self.assertEqual("0.2.0", marketplace.get("version"))
+        self.assertEqual("Matt Ramotar", marketplace.get("owner", {}).get("name"))
+        entries = marketplace.get("plugins", [])
+        self.assertEqual(1, len(entries), "standalone marketplace must expose one plugin")
+        entry = entries[0]
+        self.assertEqual("ultrasolve", entry.get("name"))
+        self.assertEqual("./", entry.get("source"))
+        self.assertEqual("productivity", entry.get("category"))
+        self.assertNotIn("version", entry)
+
+        codex_path = PLUGIN_ROOT / ".agents/plugins/marketplace.json"
+        self.assertTrue(codex_path.is_file(), "Codex marketplace manifest is required")
+        codex_marketplace = json.loads(read_text(codex_path))
+        self.assertEqual("matt-ramotar", codex_marketplace.get("name"))
+        self.assertEqual("Matt Ramotar", codex_marketplace.get("owner", {}).get("name"))
+        codex_entries = codex_marketplace.get("plugins", [])
+        self.assertEqual(1, len(codex_entries), "Codex marketplace must expose one plugin")
+        self.assertEqual(
+            {
+                "name": "ultrasolve",
+                "source": {"source": "local", "path": "./"},
+                "policy": {
+                    "installation": "AVAILABLE",
+                    "authentication": "ON_INSTALL",
+                },
+                "category": "Productivity",
+            },
+            codex_entries[0],
+        )
 
 
 class TestPortableEvaluationContract(PortabilityContractTestCase):
@@ -502,6 +520,10 @@ class TestPortableEvaluationContract(PortabilityContractTestCase):
             "debugging-boundary",
             *(f"explicit-{leaf}" for leaf in LEAVES),
             "router-selection",
+            "automatic-define",
+            "direct-define",
+            "define-nonactivation",
+            "define-delegated-nonactivation",
             "map-back",
         )
         for case_id in case_ids:
@@ -550,6 +572,61 @@ class TestPortableEvaluationContract(PortabilityContractTestCase):
                 self.assertRegex(stimulus, r"(?:three|3).{0,80}(?:failed|approaches)")
                 self.assertRegex(outcome, r"select.{0,80}(?:one to three|1-3).{0,80}(?:leaf|leaves)")
                 self.assertRegex(outcome, r"(?:load|read).{0,80}(?:selected|sibling)")
+            elif case_id == "automatic-define":
+                self.assertRegex(stimulus, r"approved.{0,160}(?:plan|rewrit(?:e|ing)|migration)")
+                self.assertEqual(
+                    "the definition method activates automatically for the "
+                    "solution-shaped request and returns a problem contract with "
+                    "observable success criteria and a decision point, not the "
+                    "requested rewrite plan.",
+                    outcome,
+                )
+                self.assertRegex(outcome, r"definition method.{0,80}activates? automatic")
+                self.assertRegex(outcome, r"problem contract")
+                self.assertRegex(outcome, r"(?:not|instead of).{0,60}(?:plan|rewrite)")
+            elif case_id == "direct-define":
+                self.assertIn("define", stimulus)
+                self.assertIn("direct invocation", stimulus)
+                self.assertEqual(
+                    "the definition method define loads and applies its full method, "
+                    "producing a problem contract whose candidate register carries "
+                    "the approved migration as one row among alternatives.",
+                    outcome,
+                )
+                self.assertIn("define", outcome)
+                self.assertRegex(outcome, r"(?:load|apply|execute)")
+                self.assertRegex(outcome, r"problem contract")
+            elif case_id == "define-nonactivation":
+                self.assertRegex(stimulus, r"already agreed.{0,120}success criteria")
+                self.assertEqual(
+                    "the definition method does not activate; the defined problem is "
+                    "worked directly or routed toward reformulation of its formulation "
+                    "rut.",
+                    outcome,
+                )
+                self.assertRegex(outcome, r"definition method.{0,60}(?:not|never).{0,40}activat")
+                self.assertRegex(outcome, r"(?:reformulation|worked directly|defined problem)")
+            elif case_id == "define-delegated-nonactivation":
+                self.assertIn("complete, reviewed specification", stimulus)
+                self.assertNotIn("attached", stimulus)
+                self.assertNotIn("given", stimulus)
+                for concrete_value in (
+                    "m7i.large",
+                    "m7i.xlarge",
+                    "c7i.2xlarge",
+                    "3 to 6",
+                    "6 to 24",
+                    "0 to 40",
+                    "kubernetes 1.33",
+                ):
+                    self.assertIn(concrete_value, stimulus)
+                self.assertEqual(
+                    "the definition method does not activate for the fully specified "
+                    "request; the task proceeds as ordinary work.",
+                    outcome,
+                )
+                self.assertRegex(outcome, r"definition method.{0,60}(?:not|never).{0,40}activat")
+                self.assertRegex(outcome, r"ordinary work")
             elif case_id == "map-back":
                 self.assertIn("explicit invocation", stimulus)
                 self.assertRegex(stimulus, r"(?:zero changes|rollback).{0,120}(?:rollback|zero changes)")
@@ -575,6 +652,9 @@ class TestPortableEvaluationContract(PortabilityContractTestCase):
         for case, runs, ablation, rule in (
             ("activation", "5", "with-without", "4/5"),
             ("nonactivation", "5", "with-without", "4/5"),
+            ("define", "3", "none", "3/3"),
+            ("define-activation", "5", "with-without", "4/5"),
+            ("define-nonactivation", "5", "with-without", "4/5"),
             ("router-read-order", "3", "none", "3/3"),
             ("simplify", "3", "none", "3/3"),
             ("analogize", "3", "none", "3/3"),
@@ -602,23 +682,15 @@ class TestPortableEvaluationContract(PortabilityContractTestCase):
             r' --format json;? \|\| exit 1; done',
         )
 
-    def test_installation_and_portability_docs_match_the_canonical_tree(self) -> None:
+    def test_installation_docs_match_the_standalone_tree(self) -> None:
         readme = read_text(PLUGIN_ROOT / "README.md")
-        claude_root = "/absolute/path/to/plugins/plugins/ultrasolve"
-        self.assertGreaterEqual(readme.count(claude_root), 2)
-        self.assertNotIn("/absolute/path/to/plugins/ultrasolve", readme)
-
-        design = read_text(
-            REPOSITORY_ROOT
-            / "docs/superpowers/specs/2026-07-19-ultrasolve-portability-design.md"
-        ).lower()
-        plan = read_text(
-            REPOSITORY_ROOT
-            / "docs/superpowers/plans/2026-07-19-ultrasolve-portability.md"
-        ).lower()
-        for document in (design, plan):
-            self.assertRegex(document, r"all seven.{0,120}skill")
-            self.assertRegex(document, r"all three.{0,120}reference")
+        standalone_root = "/absolute/path/to/Ultrasolve"
+        self.assertGreaterEqual(readme.count(standalone_root), 3)
+        self.assertNotIn("/absolute/path/to/plugins", readme)
+        normalized = re.sub(r"\s+", " ", readme)
+        self.assertIn("Version `0.2.0`", normalized)
+        self.assertRegex(normalized, r"(?i)eight.{0,80}(?:agent )?skills")
+        self.assertIn("/ultrasolve:define", readme)
 
 
 class TestMigrationCoherence(PortabilityContractTestCase):

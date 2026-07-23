@@ -1,9 +1,10 @@
 # *Creative Thinking* — Claude Shannon, Bell Laboratories, March 20, 1952
 
-Shannon's Bell Laboratories talk is the historical inspiration for this
-collection. It is not the collection's specification. The talk survives as a
-ten-page typescript in the supplementary collection *Claude Elwood Shannon:
-Miscellaneous Writings*.
+These notes separate the historical source from the workflow built on it.
+Shannon's Bell Laboratories talk survives as a ten-page typescript in the
+supplementary collection *Claude Elwood Shannon: Miscellaneous Writings*. The
+typescript is the historical inspiration for this collection, not a specification
+for every rule it applies.
 
 ## Source record and publication history
 
@@ -19,7 +20,7 @@ In 1990, N. J. A. Sloane and Aaron D. Wyner received Shannon's permission to ass
 In 1993, IEEE Press published the selected *Claude Elwood Shannon: Collected Papers*.
 The excluded material, including the *Creative Thinking*
 typescript, was put into about six binders titled *Claude Elwood Shannon:
-Miscellaneous Writings*. Copies were deposited with libraries and given to
+Miscellaneous Writings*; copies were deposited with libraries and given to
 Shannon. This supplementary collection was not a conventional publication.
 In 2013, Sloane had a binder scanned and uploaded the files to the Internet Archive.
 
@@ -46,13 +47,13 @@ solution of the original.
 
 **Authored extension:** the collection makes the walk-back mandatory and records
 constraints in a ledger, including the first restored constraint that brings
-the difficulty back. Shannon says this approach works “very often.” He does not
-require the collection's constraint ledger or mandatory walk-back.
+the difficulty back. That audit is a strengthening of Shannon's “very often”
+observation, not a rule stated in the talk.
 
 ### Similar known problems / Analogize
 
 **Source-derived core:** Shannon's diagram belongs to this discussion. The
-unknown pair is the current problem `P` and sought solution `S`. Experience may
+unknown pair is the current problem `P` and sought solution `S`; experience may
 supply a similar problem `P′` with a known solution `S′`. The researcher maps
 `P′` to `P` and `S′` to `S`, making two smaller jumps rather than one large
 jump.
@@ -60,7 +61,7 @@ jump.
 **Authored synthesis and extension:** the collection requires at least two analogy
 candidates, source-domain fact checks, a mapping table, and a break-point audit.
 Reusing `P`, `P′`, `S`, and `S′` as a unifying model for other lenses is also
-authored synthesis. Shannon uses that notation here for similar known problems
+authored synthesis; Shannon uses that notation here for similar known problems
 only.
 
 ### Reformulation / Restate
@@ -82,9 +83,9 @@ solve a larger class of problems.
 
 **Modern authored extension:** structure-exposing parameterization starts from
 an awkward special case, introduces a parameter to expose a cleaner mechanism,
-then instantiates the result back to the requested case. This collection does
-not attribute the claim that “the `n` case may be easier than 2” to Shannon.
-His generalization discussion starts with a result and broadens it.
+then instantiates the result back to the requested case. The claim that “the
+`n` case may be easier than 2” is not attributed to Shannon here; the talk's
+generalization discussion is result-first.
 
 ### Structural analysis / Decompose
 
@@ -113,17 +114,20 @@ forward replay from the actual current state.
 
 The universal router, shared problem-entry contract, comparison and selection
 of lens candidates, deliberate iteration, and mandatory map-back verification
-are collection policy. Shannon presents individual approaches. He does not
-present this router or claim that the six form an exhaustive problem-solving
-system.
+are collection policy. Shannon presents useful approaches; he does not present
+this router or claim that the six form an exhaustive problem-solving system.
 
 The collection also defines product boundaries. It is for a well-defined problem
 on which work is genuinely stuck. An undefined problem first needs definition
 or brainstorming. A reproducible failure with an evidence trail belongs in
-evidence-led diagnosis. Inversion may generate bounded hypotheses inside that
-process. It does not replace observation, reproduction, isolation, or
-verification. These boundaries are modern policy and inference, not historical
-claims about the talk.
+evidence-led diagnosis; an inversion may generate bounded hypotheses inside
+that process, but does not replace observation, reproduction, isolation, or
+verification. These are
+modern policy and inference, not historical claims about the talk.
+
+The sibling define entry skill is likewise collection policy with no Shannon
+core; the talk assumes a problem already in hand, and define's sources are
+credited in its own provenance notes.
 
 ## Modern authored extensions
 
@@ -131,12 +135,12 @@ Across the lenses, modern authored extensions make transformations auditable:
 
 | Lens | Source-derived core | Modern authored extension |
 |---|---|---|
-| Simplify | Strip inessential features. Often add refinements toward the original | Constraint ledger, deliberate trivial skeleton, mandatory walk-back record |
+| Simplify | Strip inessential features; often add refinements toward the original | Constraint ledger, deliberate trivial skeleton, mandatory walk-back record |
 | Analogize | Use a solved `(P′, S′)` pair and two smaller jumps | Multiple candidates, fact verification, mapping table, break-point audit |
 | Restate | Reformulate across words, representations, and viewpoints | Invariant ledger and explicit relaxation labels |
 | Generalize | Broaden an already-found result or principle | Structure-exposing parameterization and instantiation back to the special case |
 | Decompose | Build a path through subsidiary partial results | Candidate and rejected seams, answerable questions, information-yield ordering, recomposition check |
-| Invert | Exchange givens and unknowns. Reason from an assumed result | Branching causal graph, necessary/sufficient labels, forward tests and replay |
+| Invert | Exchange givens and unknowns; reason from an assumed result | Branching causal graph, necessary/sufficient labels, forward tests and replay |
 
 These additions are authored for the collection. They should not be quoted or
 paraphrased as instructions Shannon gave in 1952.

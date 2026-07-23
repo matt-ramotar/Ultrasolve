@@ -3,8 +3,15 @@
 A stuck problem has a specific shape. There is a well-defined problem `P`, a
 solution `S` that would satisfy observable success criteria, and no credible
 route from one to the other. More effort along the same route does not change
-this. The route has to change. Ultrasolve is seven Agent Skills, a router and
-six methods, for changing it deliberately.
+this. The route has to change. Ultrasolve is eight Agent Skills: a definition
+entry, a router, and six methods for changing it deliberately.
+
+Sometimes the obstacle comes earlier: the request has been mistaken for the
+problem. `define` starts from the felt difficulty, separates mandates from
+assumptions, marks facts and uncertainties, and compares rival problem frames.
+Its output is an agreed problem contract with observable success criteria and
+an explicit decision point: proceed to planning, investigate a key unknown, or
+hand a genuinely stuck problem to `solve`.
 
 In *Creative Thinking*, a 1952 Bell Laboratories talk, Claude Shannon described
 the mental rut that keeps an experienced researcher circling one viewpoint, and
@@ -40,19 +47,19 @@ verify the result against the original success criteria, fixed facts, and
 constraints. Until that map-back passes, a solution to the transformed problem
 is a claim about the transformed problem, not about `P`.
 
-The `solve` router enforces this contract end to end. It states `P`, the
-success criteria, the fixed facts, and the missing facts worth gathering
-first. It weighs all six transformations against the specific way the problem
-is stuck, executes the strongest candidate in full, and treats no result as
-complete until the map-back passes. Activation is deliberately narrow.
-Ordinary difficulty, undefined problems, and reproducible failures with
-evidence trails belong in other workflows, and the boundaries below keep them
-there.
+The `solve` router enforces this contract end to end. It accepts a defined
+problem, its success criteria, fixed facts, constraints, and the missing facts
+worth gathering first. It weighs all six transformations against the specific
+way the problem is stuck, executes the strongest candidate in full, and treats
+no result as complete until the map-back passes. Activation is deliberately
+narrow. Ordinary difficulty, undefined problems, and reproducible failures
+with evidence trails belong in other workflows, and the boundaries below keep
+them there.
 
-Version `0.1.0` keeps the method instructions in the shared `agent-skills/`
-collection and exposes them through small host-specific adapters. Every host
-uses the same methods. Where enforcement is supported, host metadata determines
-whether a skill may run automatically or only when named.
+Version `0.2.0` keeps the definition and method instructions in the shared
+`agent-skills/` collection and exposes them through small host-specific
+adapters. Every host uses the same corpus. Where enforcement is supported, host
+metadata determines whether a skill may run automatically or only when named.
 
 ## Install for Codex
 
@@ -60,21 +67,22 @@ Add an absolute path to this checkout as a local marketplace, then install the
 plugin by its stable selector:
 
 ```sh
-codex plugin marketplace add /absolute/path/to/plugins
+codex plugin marketplace add /absolute/path/to/Ultrasolve
 codex plugin add ultrasolve@matt-ramotar
 ```
 
-Start a new Codex task after installation so the seven
-`ultrasolve:<skill>` entries are loaded. Only `ultrasolve:solve` allows
-implicit invocation. All six leaf skills are explicit-only. Use this path to
-test a fresh local installation while publication remains held.
+Start a new Codex task after installation so the eight
+`ultrasolve:<skill>` entries are loaded. `ultrasolve:define` and
+`ultrasolve:solve` allow implicit invocation. All six leaf skills are
+explicit-only. Use this path to test a fresh local installation while
+publication remains held.
 
 ## Load for Claude Code
 
 Point Claude Code at the plugin root:
 
 ```sh
-claude --plugin-dir /absolute/path/to/plugins/plugins/ultrasolve
+claude --plugin-dir /absolute/path/to/Ultrasolve
 ```
 
 Claude Code 2.1.143 is the minimum supported version. Development verification
@@ -82,13 +90,14 @@ uses Claude Code 2.1.215 or newer. Validate a local checkout strictly before
 relying on it:
 
 ```sh
-claude plugin validate /absolute/path/to/plugins/plugins/ultrasolve --strict
+claude plugin validate /absolute/path/to/Ultrasolve --strict
 ```
 
 The adapter preserves these commands:
 
 | Command | Purpose | Activation |
 | --- | --- | --- |
+| `/ultrasolve:define` | Produce an agreed problem contract before a plan commits to it | Explicit or automatic |
 | `/ultrasolve:solve` | Route a genuinely stuck problem through the full workflow | Explicit or automatic |
 | `/ultrasolve:simplify` | Strip constraints, solve a skeleton, then restore them | Explicit or router-selected |
 | `/ultrasolve:analogize` | Compare solved analogies and port verified structure | Explicit or router-selected |
@@ -97,24 +106,24 @@ The adapter preserves these commands:
 | `/ultrasolve:decompose` | Find answerable seams and recompose partial results | Explicit or router-selected |
 | `/ultrasolve:invert` | Build backward routes or hypotheses with forward validation | Explicit or router-selected |
 
-Only `solve` is visible for automatic model invocation. The six leaf wrappers
-retain `disable-model-invocation: true` and delegate to the shared method
-instructions.
+`define` and `solve` are visible for automatic model invocation. The six leaf
+wrappers retain `disable-model-invocation: true` and delegate to the shared
+method instructions.
 
 ## Install for a generic Agent Skills client
 
 Install or copy the complete [`agent-skills/`](agent-skills/) directory into
-the client location for Agent Skills collections. Keep all seven sibling
-directories together: `solve`, `simplify`, `analogize`, `restate`,
-`generalize`, `decompose`, and `invert`. The router checks the collection before
-dispatch because it may need any of the six leaf skills. An isolated copied
-skill is incomplete.
+the client location for Agent Skills collections. Keep all eight sibling
+directories together: `define`, `solve`, `simplify`, `analogize`, `restate`,
+`generalize`, `decompose`, and `invert`. The router checks the collection
+before dispatch because it may need any of the six leaf skills. An isolated
+copied skill is incomplete.
 
-Generic clients expose the bare skill names. `solve` is the automatic router.
-The six leaf skills declare themselves manual-only, but clients without
-invocation-policy enforcement may treat that declaration as advisory. Consult
-that client's installation and discovery mechanism for the final filesystem
-destination.
+Generic clients expose the bare skill names. `define` is the automatic
+definition entry and `solve` is the automatic router. The six leaf skills
+declare themselves manual-only, but clients without invocation-policy
+enforcement may treat that declaration as advisory. Consult that client's
+installation and discovery mechanism for the final filesystem destination.
 
 ## Activation and workflow boundaries
 
@@ -124,8 +133,9 @@ be recurring dead ends, constraints that defeat plausible designs, a problem too
 entangled to attack directly, or no credible route. Ordinary difficult work and
 one failed attempt are not enough.
 
-- For an undefined or open-ended problem, use an available brainstorming
-  workflow or define the problem locally first.
+- For an undefined or open-ended problem with a felt difficulty, use
+  `/ultrasolve:define`. Pure ideation with no felt problem belongs in an
+  available brainstorming workflow.
 - When research tools are unavailable, ask for the missing facts that could
   change the route or answer.
 - For a reproducible failure with evidence, return to evidence-led diagnosis.
@@ -141,18 +151,21 @@ original success criteria.
 Claude Shannon's 1952 talk *Creative Thinking* provides the historical basis
 for the six method cores: simplification with refinement, similar known
 problems, reformulation, result-first broadening, structural analysis, and
-inversion. Ultrasolve adds one entry format for the problem, success criteria,
-fixed facts, constraints, and missing domain facts. It also adds the router,
-candidate comparison, mandatory map-back, activation boundaries, constraint
-ledgers, mapping audits, causal graphs, and other safety controls. The source
-notes distinguish Shannon's ideas from these authored extensions.
+inversion. Ultrasolve adds the router, candidate comparison, mandatory
+map-back, activation boundaries, constraint ledgers, mapping audits, causal
+graphs, and other safety controls. The `define` entry has no Shannon core; its
+sources—Polya, Duncker, Keeney, and Chamberlin—are credited in its own
+provenance notes. The source notes distinguish historical ideas from authored
+extensions.
 
 ## Layout
 
 ```text
-agent-skills/                         shared instructions for all seven skills
+agent-skills/                         shared instructions for all eight skills
 agent-skills/solve/references/        shared method guidance and examples
 adapters/claude/skills/               Claude adapters for the shared skills
+.agents/plugins/marketplace.json      Codex marketplace manifest
+.claude-plugin/marketplace.json       Claude marketplace manifest
 .claude-plugin/plugin.json            Claude plugin manifest
 .codex-plugin/plugin.json             Codex plugin manifest
 evals/behavioral/v1/                  Claude-native behavioral fixtures
@@ -162,4 +175,3 @@ TESTING.md                            deterministic checks and evidence rules
 ```
 
 See [TESTING.md](TESTING.md) for the full verification protocol.
-

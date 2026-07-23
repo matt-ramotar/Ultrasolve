@@ -9,6 +9,7 @@ description: "Use when invoked directly or selected by the router because repeat
 
 - If the problem is open-ended, underspecified, or undefined, use
   brainstorming when available; otherwise define or clarify it locally.
+  When the collection is present, `../define/SKILL.md` performs that definition.
 - If missing facts could change the route or answer, use research tools when
   available; otherwise ask the user for the missing facts.
 - If a reproducible failure has an evidence trail, return to evidence-led

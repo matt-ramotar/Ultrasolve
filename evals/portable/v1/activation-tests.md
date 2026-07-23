@@ -1,7 +1,7 @@
 # Provider-Neutral Activation Matrix
 
 Each case records one self-contained provider-neutral prompt and its expected
-result in a fresh session with the complete seven-skill collection installed.
+result in a fresh session with the complete eight-skill collection installed.
 The expectations are not evidence that any particular client passes them.
 
 ## `automatic-solve`
@@ -21,6 +21,30 @@ Expected outcome: The solve router does not activate for ordinary work or a sing
 Stimulus: A reproducible checkout failure returns HTTP 500 only when two coupons are present. We have a failing test, request traces, and a stack trace pointing to discount aggregation, but the trace does not record intermediate coupon values and no relevant source lines are supplied. Plan the next diagnosis and verification steps from the available evidence.
 
 Expected outcome: The solve router does not activate; the work returns to evidence-led diagnosis, using bounded hypotheses only to guide observation and isolation.
+
+## `automatic-define`
+
+Stimulus: Leadership approved rewriting our nightly billing reconciliation job on Spark after it overran its processing window three times last month, once delaying customer invoices. The platform review is tomorrow morning and I need the rewrite plan today: cluster sizing, a parallel-run pilot, phased cutover, and decommission of the existing cron pipeline.
+
+Expected outcome: The definition method activates automatically for the solution-shaped request and returns a problem contract with observable success criteria and a decision point, not the requested rewrite plan.
+
+## `direct-define`
+
+Stimulus: Direct invocation of define: Search feels broken since the redesign and the CEO wants it fixed. Leadership approved an Elasticsearch migration off our Postgres full-text stack; produce the migration plan by Friday. Support tickets mentioning search doubled last month.
+
+Expected outcome: The definition method define loads and applies its full method, producing a problem contract whose candidate register carries the approved migration as one row among alternatives.
+
+## `define-nonactivation`
+
+Stimulus: We already agreed the problem and the success criteria: at most six total downstream attempts per client request, no multiplicative retries across hops, unchanged external timeout and failure semantics. Fixed facts: transport is at-least-once and some downstream operations are not idempotent. Three formulation attempts all collapse into the same per-hop counter design. Get us a genuinely different way to look at it.
+
+Expected outcome: The definition method does not activate; the defined problem is worked directly or routed toward reformulation of its formulation rut.
+
+## `define-delegated-nonactivation`
+
+Stimulus: Write a Terraform module for a new EKS cluster from this complete, reviewed specification: accept VPC ID and private subnet IDs as inputs; use AWS provider 5.x; create system, application, and batch managed node groups with 3 to 6 m7i.large, 6 to 24 m7i.xlarge, and 0 to 40 c7i.2xlarge Spot nodes respectively; enable IRSA and pin Kubernetes 1.33.
+
+Expected outcome: The definition method does not activate for the fully specified request; the task proceeds as ordinary work.
 
 ## `explicit-simplify`
 

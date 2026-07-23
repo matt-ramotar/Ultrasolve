@@ -13,9 +13,10 @@ candidate comparison, and mandatory map-back are collection synthesis.
 
 ## Boundaries
 
-- If the problem is underspecified, undefined, or open-ended, use a
-  brainstorming workflow when available; otherwise define or clarify it
-  locally before continuing.
+- If the problem is underspecified, undefined, or open-ended, use the sibling
+  define method (`../define/SKILL.md`) to produce an agreed problem statement;
+  for pure ideation, use a brainstorming workflow when available; otherwise
+  define or clarify it locally before continuing.
 - If missing facts could change the route or answer, use research tools when
   available; otherwise ask the user for the missing facts before
   transforming the problem.
@@ -31,7 +32,7 @@ candidate comparison, and mandatory map-back are collection synthesis.
 
 1. **Integrity preflight.** Derive the collection root from the location of
    this loaded `SKILL.md`; it is the parent of the `solve` directory. Verify
-   that all seven canonical `SKILL.md` files—the router and all six leaves—exist
+   that all eight canonical `SKILL.md` files—the router, the define entry, and all six leaves—exist
    and are accessible and readable. Verify that all three required references
    exist and are accessible and readable:
    `references/technique-selection.md`,
@@ -44,7 +45,19 @@ candidate comparison, and mandatory map-back are collection synthesis.
    observable success criteria for a solution `S`. List fixed facts and
    constraints that may not be silently changed. Identify missing domain facts
    that could alter the route or answer, and gather them before transforming
-   the problem.
+   the problem. If a define problem contract exists for this problem, adopt its `P`,
+   observable success criteria, fixed facts, constraints, and missing domain
+   facts verbatim rather than re-deriving them; adopt its non-goals as
+   constraints, and carry any OPEN or ASSUMED marks, with their settling
+   questions, into the invariant ledger. A pending stakeholder question that
+   contract lists as OPEN with a named owner is exempt from gathering before
+   transforming the problem. A carried stakeholder question marked ASSUMED
+   because its named owner is unreachable is likewise exempt; the mark counts
+   as the unresolved fact for draft routing.
+   If `P` or the observable success criteria cannot
+   be stated without inventing stakeholder facts, stop, run the sibling define
+   method named in the boundaries, and resume this step only with its returned
+   contract, carrying its OPEN or ASSUMED marks forward.
 3. **Diagnose.** Internally consider all six lenses using
    [technique selection](references/technique-selection.md). Select one
    to three strong matches. Do not print a six-row ritual. Mention a rejected
@@ -67,7 +80,9 @@ candidate comparison, and mandatory map-back are collection synthesis.
    solution `S` for the original `P`; restore or resolve every relaxed
    constraint; verify `S` against the original success criteria, fixed facts,
    and constraints; name any remaining gaps. Work on a transformed problem is
-   not complete until this passes.
+   not complete until this passes. If the adopted definition carried OPEN or
+   ASSUMED marks, restate that status alongside `S`; verification against a
+   draft definition yields a draft result.
 8. **Iterate deliberately.** If still stuck, record what the attempt taught
    and either choose a different lens or gather new information. Never repeat
    an unchanged lens without new information.
