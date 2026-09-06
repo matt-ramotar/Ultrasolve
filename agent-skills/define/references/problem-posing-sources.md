@@ -44,7 +44,7 @@ evidence, or requires negotiation because its conditions conflict.
 
 **Boundary of adaptation:** using that mathematical checklist to audit an
 organizational problem contract is an adaptation. Polya did not prescribe the
-six-field contract, mandate marks, or the dissolution routing used here.
+shared problem contract, mandate marks, or the dissolution routing used here.
 
 ### Duncker: functional analysis and fixedness
 
@@ -54,7 +54,8 @@ object's familiar use can block recognition of another useful function.
 
 **Analogical authored move:** this method applies that object-level insight to
 a pre-attached candidate solution: it extracts what the candidate was meant to
-do, then returns the candidate to an ordinary comparison set. Extending
+do, then returns a still-open candidate to an ordinary comparison set. A
+binding choice remains a constraint while its effectiveness is assessed. Extending
 Duncker from objects to candidate solutions is an analogy authored for this
 method, not a move Duncker stated.
 
@@ -66,9 +67,10 @@ decision matters. Repeatedly asking why an objective matters can expose a
 means-ends structure. The regress stops when the objective is fundamental for
 the specific decision context, not when it reaches an abstract universal good.
 
-**Boundary of adaptation:** the exact "one rung past" control, the working
-mandate label, and the confirmation states are authored operating rules rather
-than claims from Keeney.
+**Boundary of adaptation:** the working mandate label, confirmation states,
+and decision to regress only when a material outcome gap remains are authored
+operating rules rather than claims from Keeney. An already sufficient
+operational contract does not require a separate mandate interview.
 
 ### Chamberlin, Platt, and Heuer: competing hypotheses
 
@@ -78,10 +80,12 @@ and observations designed to discriminate among them. Heuer carries the same
 discipline into analysis under incomplete and ambiguous information by
 testing several plausible hypotheses against the evidence.
 
-**Boundary of adaptation:** requiring an undramatic middle case, a metric
-artifact or no-problem possibility, and no prior likelihood before a
-discriminating observation are controls authored for this method. They should
-not be represented as quotations or complete procedures from any one source.
+**Boundary of adaptation:** considering relevant undramatic middle cases,
+metric artifacts, or no continuing problem; withholding unsupported
+likelihoods; and explicitly allowing joint mechanisms and inconclusive
+outcomes are controls authored for this method. A noncausal definition does
+not require this machinery. These controls should not be represented as
+quotations or complete procedures from any one source.
 
 ### Ackoff: messes and problems
 
@@ -113,18 +117,21 @@ Ackoff, Checkland, or Shannon.
 
 | Authored control | What it adds |
 |---|---|
-| Ledger sort | Every load-bearing claim receives exactly one label: observation, constraint, stake, or proposal. |
-| Mandate marks | The working mandate is marked CONFIRMED, OPEN with an exact settling question, or ASSUMED when the named owner is unreachable. |
-| Candidate register | Received and rival solutions remain ordinary rows, including a do-nothing or smallest-credible-intervention row where no-go can land. |
-| Counterfactual criteria test | An observable criterion is accepted only when it can still detect success if every proposal is never built. |
-| Decision-point ending | Dates bound evidence gathering, each hypothesis receives a branch, and no post-decision commitment skeleton appears before a go-condition. |
-| Agreement block | Two to four closed confirmation questions separate a written draft from a stakeholder-confirmed mandate. |
-| Reaffirmation rule | A requester may reaffirm the original request after hearing the definition challenge; a deadline by itself is not reaffirmation. |
-| Handoff-carry rules | Non-goals become constraints, OPEN and ASSUMED marks travel with their settling questions, and unresolved status must be restated downstream. |
+| Ledger and authority sort | Split compound claims into observations, constraints, stakes, and proposals. Preserve the requested artifact and delegated actions; a binding choice is distinct from its uncertain effectiveness. |
+| Proportional definition | Start with a compact provisional record and only material unanswered questions; expand when ownership, uncertainty, or the requested depth warrants it. The presentation target is a selected workflow default, not a measured optimum. |
+| Unresolved-item marks | Use the shared contract's marks, exact questions, and known owners. Leave unknown ownership explicit; an assumption or silence cannot confirm an answer. |
+| Candidate register | Compare still-open proposals against common criteria, including a do-nothing or smallest credible intervention where useful. A binding choice constrains implementation options unless its owner revises it. |
+| Outcome and acceptance audit | Separate outcome success from artifact completion. Keep open proposals out of the problem frame; retain binding means as constraints. Trace each acceptance parameter to supplied evidence, justified derivation, or an unresolved proposal. |
+| Joint and inconclusive dispositions | Preserve overlapping mechanisms unless exclusivity is supported. An evidence deadline need not select a cause or produce an unsupported GO/NO-GO verdict. |
+| Conditional requested artifact | Preserve supported portions of the authorized deliverable with assumptions and conditional commitments; recommending a different artifact does not authorize substitution or implementation. |
+| Reaffirmation rule | Honor a prior reaffirmed request; challenge the same decision at most once unless material new evidence changes the concern. A deadline by itself is not reaffirmation. |
+| Shared handoff controls | Adopt the shared problem contract and carry its original obligations, unanswered questions, owners, and remaining effort. Apply its result and effort rules without a second local policy. |
 
-The one-bounce guard is part of the authored handoff rule: new stakeholder
-facts, or an explicit ASSUMED mark when the named owner is unreachable, must
-prevent an unresolved mandate from being laundered into a settled one.
+The authored handoff guard permits conditional exploration under inherited
+uncertainty. A declined handoff returns a disposition and reason; it does not
+bounce an unchanged problem back or require a new mandate for already agreed
+operational criteria. The canonical result and effort policy lives in the
+[shared workflow contract](../../solve/references/workflow-contract.md).
 
 ## Rejected folklore
 
@@ -138,9 +145,10 @@ keeps causal hypotheses plural and evidence-discriminated.
 ### Absolute "never mention a solution in a problem statement" rule
 
 Rejected because erasing a received candidate loses provenance and can make a
-definition challenge read as refusal. The candidate is excluded from `P` and
-the success criteria but preserved in the candidate register, where it can be
-compared without becoming the frame.
+definition challenge read as refusal. Keep a still-open candidate in its
+comparison set without making it the outcome. Keep a binding means in the
+contract's constraints and the authorized artifact in its deliverable scope;
+neither establishes that the desired outcome will follow.
 
 ### Full CATWOE ritual for every definition
 
@@ -151,13 +159,11 @@ method when the situation warrants it.
 
 ## Negative-attribution guard
 
-- Do not imply that the ledger, marks, register, counterfactual test,
-  decision-point ending, agreement block, reaffirmation rule, or handoff rules
-  came from the cited sources.
-- Do not present the six-field contract as Polya's checklist, the candidate
+- Do not imply that the authored controls above came from the cited sources.
+- Do not present the shared problem contract as Polya's checklist, the candidate
   register as Duncker's procedure, or the mandate states as Keeney's notation.
-- Do not present the symmetric table as a verbatim Chamberlin, Platt, or Heuer
-  procedure.
+- Do not present the causal comparison or its joint/inconclusive dispositions
+  as a verbatim Chamberlin, Platt, or Heuer procedure.
 - Do not claim that Ackoff or Checkland prescribed the one-or-many test or
   owner-carry rules in their present form.
 - Do not attribute any part of this method to Shannon.

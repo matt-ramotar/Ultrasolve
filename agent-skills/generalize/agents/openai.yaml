@@ -1,6 +1,6 @@
 interface:
   display_name: "Generalize"
   short_description: "Broaden or parameterize a result, then instantiate it."
-  default_prompt: "Use $generalize to compare result-first broadening with parameterization, then instantiate the selected route back to this problem."
+  default_prompt: "Use $generalize to assess result-first broadening and parameterization for applicability, select a supported form, and instantiate it back to this problem."
 policy:
   allow_implicit_invocation: false

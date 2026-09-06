@@ -5,66 +5,31 @@ description: "Use when invoked directly or selected by the router because intera
 
 # Simplify
 
-## Direct-invocation boundaries
+## Load and route
 
-- If the problem is open-ended, underspecified, or undefined, use
-  brainstorming when available; otherwise define or clarify it locally.
-  When the collection is present, `../define/SKILL.md` performs that definition.
-- If missing facts could change the route or answer, use research tools when
-  available; otherwise ask the user for the missing facts.
-- If a reproducible failure has an evidence trail, return to evidence-led
-  diagnosis when available; otherwise perform it locally. This leaf provides
-  only bounded transformation support inside diagnosis and does not replace it.
+1. Read the full [shared workflow contract](../solve/references/workflow-contract.md).
+   Resolve its path and the module path below relative to this entrypoint.
+   Apply the shared authority, restriction, routing, status, and effort rules.
+2. Check the direct-entry boundaries before transforming the problem:
+   - An explicit applicable method request does not require repeated failure.
+   - A felt difficulty that lacks a sufficient problem contract belongs in
+     [define](../define/SKILL.md). An inherited contract with OPEN/ASSUMED items
+     permits conditional exploration under the shared rules. Pure ideation
+     with no felt problem belongs in available brainstorming, otherwise handle
+     it locally.
+   - A reproducible failure with an evidence trail belongs in evidence-led
+     diagnosis, performed locally if no dedicated workflow is available.
+     This method may provide bounded support inside that diagnosis.
+3. Adopt an existing problem contract unchanged; otherwise establish the shared
+   contract's fields. Preserve OPEN/ASSUMED questions and remaining effort.
+   Gather accessible evidence without restarting a stakeholder interview;
+   unavailable required evidence yields useful partial work or a precise blocker.
+4. Read the complete [full simplify method](../solve/references/methods/simplify.md)
+   before constructing any cheap candidate or applying a transformation.
+   Follow that module and the shared contract through the map-back checkpoint.
 
-## Provenance: source and authored extensions
-
-Shannon-derived core: strip inessential features, solve the simpler problem,
-then add refinements toward the original. Authored extensions: the constraint
-ledger, deliberate trivial skeleton, ordered restoration record, and mandatory
-map back.
-
-## Entry contract
-
-Before transforming anything:
-
-1. State the original problem `P` in one paragraph.
-2. State observable success criteria for the solution.
-3. List fixed facts and constraints that may not be silently changed.
-4. Identify and gather missing domain facts that could change the route or
-   answer.
-
-Any constraint relaxed during this lens remains recorded for restoration.
-
-## Cheap candidate transformation
-
-List the relevant constraints, propose a stripping order, and show the first
-one or two removals as a candidate skeleton. Prefer the order most likely to
-expose which constraint carries the difficulty.
-
-## Full method
-
-1. Build a constraint ledger containing fixed facts, requirements, edge cases,
-   and intentional relaxations.
-2. Choose and record a stripping order.
-3. Remove constraints in that order until the skeleton is answerable. A
-   trivial skeleton is allowed and can be useful.
-4. Solve or characterize the skeleton.
-5. Restore constraints one at a time. Adapt the solution after each restore
-   and record the first constraint that reintroduces the difficulty.
-6. Continue the walk-back until every relaxed constraint is restored or
-   explicitly unresolved.
-
-## Result and map-back
-
-Return the skeleton, stripping order, skeleton result, restoration record, and
-the mapped-back candidate solution. Verify it against `P`, every fixed fact and
-constraint, and the original observable success criteria. Reject a candidate
-that violates them; name any unresolved gap.
-
-## Failure modes
-
-- Stopping at the toy skeleton instead of completing the map back.
-- Treating a trivial skeleton as an error rather than a diagnostic waypoint.
-- Restoring several constraints together and losing the first source of
-  renewed difficulty.
-- Silently dropping a fixed fact or unresolved constraint.
+Both required resources must load successfully. Report a missing or inaccessible
+dependency as a collection-integrity error before applying the method. A denial
+ends that path; do not retry through another loader, alias, or copy. The direct
+entry uses the same method module as the router, and consumes the same remaining
+full-method budget.

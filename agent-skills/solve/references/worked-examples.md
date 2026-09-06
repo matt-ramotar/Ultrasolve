@@ -6,6 +6,14 @@ success criteria. The `P`/`P′`/`S′`/`S` framing is reused here as authored
 collection shorthand; Shannon used that notation specifically for similar known
 problems.
 
+**Evidence convention:** the entry contracts and pre-transform observations below
+are fictional supplied inputs for these examples. Method reasoning is illustrative;
+the end-to-end tests, production replays, and measurements proposed below have not
+been executed by this collection. They describe evidence a real task must gather.
+Use the [shared workflow contract](workflow-contract.md) to keep definition status,
+resolution status, effort, and the source of each claim separate. Each example uses
+one full method attempt; a later full method consumes the same remaining budget.
+
 ## Simplify — multi-region cache invalidation
 
 ### Entry contract
@@ -21,8 +29,13 @@ value. Fixed facts are asynchronous regional replication, monotonic record
 versions, and no synchronous global broadcast. Transport inspection confirms
 that the event service provides per-tenant ordering and contiguous offsets.
 The source database exposes an authoritative commit position on tenant outbox
-rows, and the commit-ordered outbox publisher can emit tenant watermarks;
-measurement shows p99.9 delivery lag under two seconds.
+rows, and the commit-ordered outbox publisher can emit tenant watermarks.
+For this timing argument, the supplied database capability additionally attests a
+source-clock coverage time `T`: all accepted commits through `T` are represented
+by the watermark's commit position. A finite bound `epsilon` on the absolute
+difference between consumer and source clocks is supplied. These are prerequisites,
+not properties inferred from a contiguous stream. The fictional measurements show
+p99.9 delivery lag under two seconds; delivery percentiles do not prove freshness.
 
 ### Cheap candidate
 
@@ -40,17 +53,22 @@ Restore constraints one at a time:
 3. Multiple regions: record every accepted version and its authoritative source
    commit position in a transactional outbox, then publish it to an ordered
    per-tenant version-event stream. This is the **first
-   constraint that reintroduces difficulty**, because correctness now depends
+   constraint that reintroduces difficulty in this restoration order**, because correctness now depends
    on proving that a region has not silently missed an update. The same
    commit-ordered publisher emits a watermark only after draining all tenant
-   outbox rows through source commit position `C`; it may not renew a watermark
-   while any earlier accepted commit remains unpublished. Each region applies
-   events to its version pointer, advances a contiguous stream offset, and
-   renews a five-second freshness lease only after consuming that commit-aware
-   watermark. A publisher stall, sequence gap, or expired lease disables cached
-   reads until the consumer catches up; reads use a source-of-truth path that
-   does not depend on cache freshness, or are rejected if that path is
-   unavailable. The measured delivery percentile remains an SLO.
+   outbox rows through source commit position `C`. Its attested coverage time `T`
+   cannot advance past an unpublished accepted commit. Each region applies events
+   to its version pointer and advances a contiguous stream offset before accepting
+   that watermark. The conservative consumer-clock lease deadline is
+   `T + 5 seconds - epsilon`, not the watermark's arrival time plus five seconds.
+   A late or replayed watermark retains its original coverage time; an expired
+   one cannot re-enable cached reads. A sequence gap or expired deadline disables
+   cached reads. A publisher stall prevents coverage from advancing, but the region
+   does not instantly observe an unpublished upstream commit: it relies on the
+   bounded deadline. On bypass, use an authoritative read path with the required
+   freshness, or reject the read if that path is unavailable. If attested coverage
+   time or the clock-error bound is unavailable, this proof is unavailable too;
+   retain that design gap rather than claim a five-second lease is justified.
 4. Soft deletes: publish a versioned tombstone; warm-up and reads may not cross
    it.
 5. Tenant TTL overrides: attach expiry to the tenant's versioned entry, without
@@ -58,15 +76,32 @@ Restore constraints one at a time:
 6. Warm-up: read the same pointer before filling and compare again before
    publishing, discarding a fill that lost a version race.
 
+The active set at step 3 includes multiple records, multiple processes, and
+asynchronous regions. The first failing restoration is evidence about that set,
+not proof that the last-added constraint is the sole cause. Try another order or
+a smaller interacting subset before making a stronger causal attribution.
+
+For the adversarial timing trace, use `T = 0`, `epsilon = 0`, a later accepted
+write at 0.1, delivery of the old watermark at 1.9, and then a publisher stall.
+The deadline stays at 5.0; receipt must not extend it to 6.9. A consumer clock
+that may lag source time by 0.25 seconds uses deadline 4.75. Unknown coverage or
+clock bounds cannot support the proof. This is a conditional timing argument,
+not evidence of a production percentile or correctness of a deployed cache.
+
 ### Map-back and verify
 
 `S` combines versioned values and tombstones with the ordered per-tenant event
 stream and freshness lease; it is not the single-process counter from the
-skeleton. Tests cover propagation percentiles, a deliberately dropped event
+skeleton. Proposed tests cover propagation percentiles, a deliberately dropped event
 and offset gap, a publisher stall after commit but before event assignment,
+delayed pre-write watermarks, expired replay, nonzero and unknown clock bounds,
 watermark suppression and lease-expiry cache bypass, delete/recreate, tenant
 isolation, and the warm-up race. The five-second p99.9 target remains an
 operating SLO rather than proof that asynchronous delivery never exceeds it.
+
+**Result:** definition CONFIRMED within the fictional input; resolution CANDIDATE.
+The timing argument supports the stated conditional deadline; the proposed system
+still needs evidence for propagation, deletion, isolation, and warm-up criteria.
 
 ## Analogize — fair CI-runner allocation
 
@@ -80,6 +115,11 @@ is detected. Fixed facts are unknown job duration at enqueue time,
 non-preemptive jobs, and several runners operating in parallel. Missing facts
 are team weights, runner compatibility classes, maximum job duration, and the
 cost estimate or charging rule.
+
+The fairness measurement window and acceptable share deviation are unspecified
+acceptance parameters, marked OPEN. The decision owner is unknown: identify who
+can set the window and deviation, then ask for those values. Preserve these
+questions through the method; a scheduler analogy cannot settle them.
 
 **Pre-transform fact gathering:** configuration inspection establishes team
 weights of `2:1:1`, two non-interchangeable runner classes, and a 60-minute hard
@@ -137,6 +177,11 @@ and measure weighted runner-time share, within-team FIFO, starvation, and
 long-job occupancy for each runner class. Any guarantee must be proved from the
 adapted charging and concurrency rules; it is not borrowed from the analogy.
 
+**Result:** definition DRAFT; resolution CANDIDATE. The fairness window and
+acceptable deviation remain OPEN with an unknown decision owner. The mapping
+supports a conditional design, while charging, concurrency, fairness, FIFO,
+and starvation claims await the specified validation.
+
 ## Restate — retries across service hops
 
 ### Entry contract
@@ -181,12 +226,16 @@ ineligible for automatic retry.
 ### Map-back and verify
 
 `S` replaces “smarter per-hop logic” with a conserved, propagated work budget.
-End-to-end tests assert at most six attempts for sequential calls and for
+Proposed end-to-end tests must assert at most six attempts for sequential calls and for
 three-way fan-out when every child retries concurrently; child allocations sum
 to the parent's remaining budget; deadlines remain unchanged; ineligible
 operations do not retry; repeated fan-out delivery reuses allocation IDs; and
 nested propagation cannot mint tokens. The temporary timeout relaxation is
 explicitly removed. The invariant ledger remains the acceptance checklist.
+
+**Result:** definition CONFIRMED within the fictional input; resolution CANDIDATE.
+The conservation argument is illustrative; no end-to-end retry, redelivery, or
+deadline test is reported as executed.
 
 ## Generalize — account merge
 
@@ -219,10 +268,15 @@ generalization.
 
 ### Full method
 
+Select result-first broadening as the primary route because the supplied
+organization workflow provides an established mechanism to inspect. Keep the
+parameterized sketch as a cross-check for convergence and rollback; it is not
+a second full-method attempt.
+
 Both candidates point to a user-scoped alias table with an acyclic canonical-ID
 resolver. Insert the alias and immutable audit record transactionally, resolve
 ownership at read and authorization boundaries, backfill direct-ID consumers,
-and delay destructive cleanup until verification and the rollback window pass.
+and delay destructive cleanup until verification and the required rollback test pass.
 The generalized model is a reasoning aid; it does not authorize a universal
 entity framework.
 
@@ -231,6 +285,11 @@ entity framework.
 Instantiate the model for two user IDs only. Foreign-key, authorization,
 audit-history, idempotent-retry, and rollback tests must pass for those users.
 Ship the requested user-merge path, not unrequested general infrastructure.
+
+**Result:** definition CONFIRMED within the fictional input; resolution CANDIDATE.
+Both generalization forms happen to apply to this case. If either prerequisite
+were absent, mark that form inapplicable and use the supported form without
+inventing a precedent or parameter axis. Required merge tests remain proposed.
 
 ## Decompose — extracting monolith billing
 
@@ -284,6 +343,12 @@ cross-cutting constraints—idempotency, invoice IDs, authorization, ledger
 totals, audit history, and rollback—across every boundary. `S` exists only when
 the recomposed path meets the original criteria; individually green stages do
 not prove the migration.
+
+**Result:** definition CONFIRMED within the fictional input; resolution PARTIAL.
+The seam and questions are useful progress, not a verified migration. If the
+rounding subproblem needs another full method, checkpoint its original parity
+obligations, keep the same contract and remaining effort, then apply that method
+to the bounded question. Its answer still must recompose into the whole migration.
 
 ## Invert — EU tail latency
 
@@ -348,3 +413,8 @@ evidence-led systematic debugging for observation, reproduction, isolation,
 and verification; inversion does not replace that process. `S` is accepted only
 after the isolated mechanism and fix reproduce against the original regional
 latency criteria.
+
+**Result:** definition CONFIRMED within the fictional input; resolution PARTIAL.
+The hypothesis set and proposed discriminating experiments do not establish a
+cause or tested fix. Return this bounded result to diagnosis with its unanswered
+questions; do not continue generating branches without credible information gain.

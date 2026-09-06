@@ -2,7 +2,11 @@
 
 Use this reference during the router's internal diagnosis. Consider all six
 lenses, select one to three strong matches, and expose only the useful routing
-decision—not a six-row user-visible ritual.
+decision. Load the [shared workflow contract](workflow-contract.md) and apply its
+eligibility, authority, inherited problem record, evidence rules, and remaining
+effort before selecting a method. An agreed operational problem and criteria
+suffice even when its higher-level business rationale is unknown; a separate
+mandate is not a routing prerequisite.
 
 ## Symptom map
 
@@ -15,16 +19,31 @@ decision—not a six-row user-visible ritual.
 | The problem is too entangled to answer as one unit and has no credible first step | Decompose | Several candidate seams with answerable outputs |
 | The end state is clear but forward routes are invisible | Invert | A backward graph of alternative predecessors, actions, and uncertain edges |
 
-Symptoms are evidence for selection, not proof. Read the selected leaf's full
-instructions before executing it.
+Symptoms are evidence for selection, not proof. Read each selected canonical
+method module in full before constructing its cheap candidate. The modules live
+under `methods/`, relative to this reference: `simplify.md`, `analogize.md`,
+`restate.md`, `generalize.md`, `decompose.md`, and `invert.md`. They are the
+router's method library; public leaf commands and entrypoints are not dispatch
+fallbacks. End a missing or denied method path without reproducing it through
+another route.
 
 ## High-value combinations
 
-An arrow has two valid meanings: dependent cheap candidates during comparison,
-where the first candidate informs the second without running either full
-method; or a later deliberate iteration after the first selected method has
-executed, mapped back, and been verified. It never authorizes running multiple
-full leaves before map-back and verification.
+An arrow has two valid meanings:
+
+- During cheap comparison, one candidate informs another without executing
+  either full method. Preserve each module's candidate requirements.
+- During full execution, one completed method reaches a map-back checkpoint
+  against the original contract, then another method addresses a bounded
+  remaining question. The checkpoint may be partial or unsuccessful; it need
+  not verify a whole solution before a second method can help. Preserve useful
+  progress, outstanding criterion obligations, non-goals, and unresolved marks.
+
+Execute one full method first. Without a larger already-authorized effort, the
+shared budget is two full attempts total for the same problem. A full method on
+a subproblem consumes an attempt too. Handoffs, renamed candidates, and re-entry
+do not reset the count. Do not hide full execution inside a cheap candidate or
+start another full method before the preceding map-back checkpoint.
 
 - **Restate → Simplify:** a changed representation can reveal which
   constraints are incidental and safe to strip temporarily.
@@ -39,7 +58,11 @@ full leaves before map-back and verification.
 
 Use combinations only when both lenses are strong matches. The router still
 produces one cheap artifact per selected lens and chooses one full method
-first; it does not mechanically run every selected leaf before verification.
+first. For example, decompose may expose a seam whose mechanism is unresolved.
+Its checkpoint records the useful seam and every original obligation still
+unmet. Analogize can then consume the remaining default attempt on that seam,
+with a second checkpoint against the whole problem. Solving the seam alone is
+not whole-result verification.
 
 ## Close alternatives
 
@@ -59,17 +82,38 @@ chosen route should be interpreted. Common boundaries:
 
 ## Rut avoidance
 
-- Record the lens, candidate, result, and what was learned.
+- Record the lens, candidate, result, what was learned, and effort remaining.
 - Do not rerun an unchanged lens without new facts or a materially different
   candidate.
-- If no candidate is credible, revisit `P`, observable success criteria, fixed
-  facts, constraints, and missing domain facts.
+- If no candidate is credible, inspect the inherited contract and evidence for
+  a specific obstruction. Do not reconstruct its criteria, invent facts, or
+  reopen a binding decision. Any contract revision needs an explicit source or
+  authority and preserves prior obligations until deliberately changed.
 - In debugging, use inversion only to generate bounded hypotheses, then return
   to evidence-led diagnosis for testing.
 
-A mandate explicitly labeled OPEN or ASSUMED counts as stated for routing; it
-remains draft, and its settling question travels with it.
+Carried OPEN or ASSUMED stakeholder questions permit explicitly conditional
+exploration and retain their owner, settling question, and status. They do not
+create an extra definition gate. Distinguish an unknown that blocks a selected
+claim from an unknown the investigation can resolve. Gather accessible evidence
+yourself; unavailable necessary evidence limits the claim or next action.
 
-If `P`, observable success criteria, or the mandate cannot be stated without
-inventing stakeholder facts, exit to the sibling define method; no lens
-repairs a missing definition.
+Use the shared entry decisions when there is an actual definition gap: an
+unsettled outcome or competing definitions in a felt problem calls for
+proportional definition; pure ideation calls for available brainstorming or
+local ideation. A declined handoff returns its disposition and reason instead
+of bouncing the same unchanged problem back.
+
+## Bounded ending
+
+Stop exploration when solved, infeasibility follows from stated premises,
+necessary evidence is unavailable, the shared effort bound is reached, or
+another attempt has no credible information gain. Return the best supported
+result, remaining obstruction, and cheapest discriminating next step without a
+routine permission question. Continue independently useful authorized work.
+
+Report definition status independently of the shared resolution statuses:
+VERIFIED, CANDIDATE, PARTIAL, INFEASIBLE, or BLOCKED. Use criterion-specific
+evidence to justify the status. A planned check is not an observed result, and
+failed search is not an impossibility proof. Partial map-back preserves progress;
+it never promotes a transformed answer into a verified whole solution.

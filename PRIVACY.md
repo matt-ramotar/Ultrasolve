@@ -10,10 +10,12 @@ plugin itself, not to the host application you run it in.
 ## What Ultrasolve is
 
 Ultrasolve's runtime surface is static instruction files in Markdown plus
-JSON manifests. It executes nothing itself. There are no MCP servers, no
+JSON manifests and YAML host metadata. It executes nothing itself. There are no MCP servers, no
 hooks, no bundled binaries, and no scripts that run in your session. The
-repository also contains a Python test suite, which is development tooling
-and is never loaded by your host. Your AI coding host loads the instructions
+repository also contains Python tests, a local checker, and a runtime bundle
+builder. These are development tools and never auto-run in a host session.
+The bundle builder copies an explicit set of runtime files and writes an
+external content manifest; it makes no network or model calls. Your AI coding host loads the instructions
 into a session the same way it loads any other text.
 
 ## Data collection
@@ -28,13 +30,13 @@ The problems you bring to the router, and everything else in your session,
 are processed by your host agent (for example Claude Code or Codex) under
 that host's own privacy policy and settings. Ultrasolve adds instructions to
 that session and nothing more. It does not see, store, or transmit your
-content. There is no code and no service behind it that could.
+content. No runtime service receives it.
 
 ## Files the plugin reads
 
 The instructions direct the agent to read files inside the plugin's own
 directory: the definition entry and its references, plus the router's
-integrity preflight and the six method files. They also permit the agent to
+integrity preflight, shared workflow contract, and six method modules. They also permit the agent to
 use tools already available in your host, such as research tools, when facts
 are missing. Any such use runs under your host's permission controls and
 policies, not under this plugin.
