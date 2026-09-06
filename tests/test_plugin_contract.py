@@ -361,7 +361,7 @@ class TestIdentityAndSurface(PluginContractTestCase):
         manifest = json.loads(read_text(manifest_path))
         self.assertEqual("ultrasolve", manifest.get("name"))
         self.assertEqual("Ultrasolve", manifest.get("displayName"))
-        self.assertEqual("0.2.0", manifest.get("version"))
+        self.assertEqual("0.3.0", manifest.get("version"))
         self.assertEqual(
             "https://json.schemastore.org/claude-code-plugin-manifest.json",
             manifest.get("$schema"),
@@ -414,7 +414,7 @@ class TestIdentityAndSurface(PluginContractTestCase):
             marketplace.get("$schema"),
         )
         self.assertEqual("matt-ramotar", marketplace.get("name"))
-        self.assertEqual("0.2.0", marketplace.get("version"))
+        self.assertEqual("0.3.0", marketplace.get("version"))
         self.assertEqual("Matt Ramotar", marketplace.get("owner", {}).get("name"))
         entries = marketplace.get("plugins", [])
         self.assertEqual(1, len(entries), "marketplace must expose exactly one plugin")

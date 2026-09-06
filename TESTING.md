@@ -1,6 +1,6 @@
 # Testing Ultrasolve
 
-Version `0.2.0` separates free local verification from host behavior and
+Version `0.3.0` separates free local verification from host behavior and
 measured effectiveness. The publication hold remains. Checks do not authorize
 a commit, push, release, marketplace publication, or personal installation.
 Model evaluations require a supported isolation boundary and separately

@@ -15,7 +15,7 @@ from pathlib import Path
 SKILLS = ("solve", "define", "simplify", "analogize", "restate", "generalize", "decompose", "invert")
 MODEL_INVOCABLE = SKILLS[:2]
 LEAVES = SKILLS[2:]
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 ISSUE_CODES = frozenset({
     "ENTRYPOINT_SET", "WRAPPER_TARGET", "ACTIVATION_POLICY", "DESCRIPTION_PARITY",
     "VERSION_PARITY", "RESOURCE_MISSING", "METHOD_BODY_DUPLICATED",

@@ -182,7 +182,7 @@ class TestCodexAdapter(PortabilityContractTestCase):
         self.assertTrue(path.is_file(), "Codex manifest is required")
         manifest = json.loads(read_text(path))
         self.assertEqual("ultrasolve", manifest.get("name"))
-        self.assertEqual("0.2.0", manifest.get("version"))
+        self.assertEqual("0.3.0", manifest.get("version"))
         self.assertEqual("Rigorous methods for solving the hardest problems.", manifest.get("description"))
         self.assertEqual("Matt Ramotar", manifest.get("author", {}).get("name"))
         self.assertEqual(
@@ -256,7 +256,7 @@ class TestCodexAdapter(PortabilityContractTestCase):
             marketplace.get("$schema"),
         )
         self.assertEqual("matt-ramotar", marketplace.get("name"))
-        self.assertEqual("0.2.0", marketplace.get("version"))
+        self.assertEqual("0.3.0", marketplace.get("version"))
         self.assertEqual("Matt Ramotar", marketplace.get("owner", {}).get("name"))
         entries = marketplace.get("plugins", [])
         self.assertEqual(1, len(entries), "standalone marketplace must expose one plugin")
@@ -448,7 +448,7 @@ class TestPortableEvaluationContract(PortabilityContractTestCase):
         self.assertGreaterEqual(readme.count(standalone_root), 3)
         self.assertNotIn("/absolute/path/to/plugins", readme)
         normalized = re.sub(r"\s+", " ", readme)
-        self.assertIn("Version `0.2.0`", normalized)
+        self.assertIn("Version `0.3.0`", normalized)
         self.assertRegex(normalized, r"(?i)eight.{0,80}(?:agent )?skills")
         self.assertIn("/ultrasolve:define", readme)
 

@@ -87,7 +87,7 @@ codex plugin add ultrasolve@matt-ramotar
 Start a new Codex task after installation so the eight `ultrasolve:<skill>`
 entries are loaded. `ultrasolve:define` and `ultrasolve:solve` allow implicit
 invocation. All six leaf skills are explicit-only. Installation changes host
-configuration and is a separate user action. Version `0.2.0` remains under a
+configuration and is a separate user action. Version `0.3.0` remains under a
 publication hold. Local verification does not establish public availability.
 
 ## Load for Claude Code
