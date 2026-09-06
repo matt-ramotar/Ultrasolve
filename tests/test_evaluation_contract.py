@@ -1,4 +1,4 @@
-"""Validate authored v2 evaluation assets; never grade an agent's behavior."""
+"""Validate authored v2 evaluation assets. Never grade an agent's behavior."""
 
 import json
 from pathlib import Path

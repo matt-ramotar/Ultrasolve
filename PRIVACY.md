@@ -2,21 +2,22 @@
 
 Effective date: 2026-07-19.
 
-This policy covers the Ultrasolve plugin, the Agent Skills collection in this
-repository, distributed for use with Claude Code, Codex, and other Agent
-Skills clients. It is written by the plugin's author and applies to the
-plugin itself, not to the host application you run it in.
+This policy covers the Ultrasolve plugin and its Agent Skills collection for
+Claude Code, Codex, and other Agent Skills clients. The plugin's author wrote
+it to cover the plugin itself. Your host application has its own policy.
 
 ## What Ultrasolve is
 
-Ultrasolve's runtime surface is static instruction files in Markdown plus
-JSON manifests and YAML host metadata. It executes nothing itself. There are no MCP servers, no
-hooks, no bundled binaries, and no scripts that run in your session. The
-repository also contains Python tests, a local checker, and a runtime bundle
-builder. These are development tools and never auto-run in a host session.
+Ultrasolve's runtime consists of static Markdown instructions, JSON manifests,
+and YAML host metadata. It executes nothing itself. There are no MCP servers,
+hooks, bundled binaries, or scripts that run in your session. Your AI coding
+host loads the instructions into a session the same way it loads any other
+text.
+
+The repository also contains Python tests, a local checker, and a runtime
+bundle builder. These development tools never auto-run in a host session.
 The bundle builder copies an explicit set of runtime files and writes an
-external content manifest; it makes no network or model calls. Your AI coding host loads the instructions
-into a session the same way it loads any other text.
+external content manifest. It makes no network or model calls.
 
 ## Data collection
 
@@ -36,10 +37,10 @@ content. No runtime service receives it.
 
 The instructions direct the agent to read files inside the plugin's own
 directory: the definition entry and its references, plus the router's
-integrity preflight, shared workflow contract, and six method modules. They also permit the agent to
-use tools already available in your host, such as research tools, when facts
-are missing. Any such use runs under your host's permission controls and
-policies, not under this plugin.
+integrity preflight, shared workflow contract, and six method modules. They
+also permit the agent to use tools already available in your host, such as
+research tools, when facts are missing. Your host's permission controls and
+policies govern that use.
 
 ## Third-party links
 

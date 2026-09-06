@@ -27,7 +27,7 @@ router's method library; public leaf commands and entrypoints are not dispatch
 fallbacks. End a missing or denied method path without reproducing it through
 another route.
 
-## High-value combinations
+## Method combinations
 
 An arrow has two valid meanings:
 

@@ -1,11 +1,10 @@
 # Ultrasolve
 
-Ultrasolve helps define an unsettled problem and find a new route through a
-well-defined problem that is stuck. It provides eight Agent Skills: `define`,
+Ultrasolve provides eight Agent Skills for defining unsettled problems and
+finding new approaches when a well-defined problem is stuck. They are `define`,
 the `solve` router, and six reasoning methods.
 
-For example, give `solve` a concrete problem and the evidence that direct
-approaches failed:
+Give `solve` a concrete problem and evidence that direct approaches failed:
 
 > We need to merge two editing histories while preserving every edit and
 > allowing either branch to be restored. Three designs failed: last-write-wins
@@ -13,8 +12,8 @@ approaches failed:
 > independent rollback. Find a credible approach and identify what still
 > needs verification. No implementation is requested.
 
-If the outcome itself is unsettled, start with `define`. If you already know
-which method you want, invoke that method directly; repeated failure is not a
+If the outcome is unsettled, start with `define`. If you already know
+which method you want, invoke that method directly. Repeated failure is not a
 prerequisite for an applicable explicit request.
 
 ```text
@@ -26,9 +25,9 @@ Attempts: What have you tried, and why did it fail?
 Evidence: What facts or checks are available? What remains unknown?
 ```
 
-Supply what you know. Missing acceptance details can remain explicit while
-supported conditional work proceeds. A binding technology choice remains a
-constraint; questioning its effectiveness does not reopen that choice or
+Missing acceptance details can remain explicit while supported conditional
+work proceeds. A binding technology choice remains a constraint. Questioning
+its effectiveness does not reopen that choice or
 replace the artifact you requested. A reaffirmed request is carried forward.
 
 ## Choose an entry
@@ -46,8 +45,8 @@ replace the artifact you requested. A reaffirmed request is carried forward.
 
 Ordinary well-scoped work, including one failed attempt, proceeds directly.
 Pure ideation belongs in available brainstorming or local ideation. A
-reproducible failure with evidence belongs in evidence-led diagnosis;
-inversion can supply bounded hypotheses within that process. An agreed
+reproducible failure with evidence belongs in evidence-led diagnosis.
+Inversion can supply bounded hypotheses within that process. An agreed
 operational problem does not need another interview merely because its
 broader business rationale is unknown.
 
@@ -65,7 +64,7 @@ checks. A successful subproblem can support the next method without proving
 the whole solution.
 
 Results report two independent statuses. The definition is `CONFIRMED` or
-`DRAFT`; resolution is `VERIFIED`, `CANDIDATE`, `PARTIAL`, `INFEASIBLE`, or
+`DRAFT`. Resolution is `VERIFIED`, `CANDIDATE`, `PARTIAL`, `INFEASIBLE`, or
 `BLOCKED`. A verified result under a draft definition is explicitly conditional.
 A proposed test is not a passing test, and failed search is not impossibility.
 
@@ -73,7 +72,7 @@ Your existing effort instructions take precedence. Otherwise, the workflow
 compares one to three cheap candidates and permits two full method attempts
 total for the same problem. Direct methods and subproblems share that budget.
 At its limit, the result includes the best supported progress and next useful
-check; re-entry does not restart the count or create a routine approval gate.
+check. Re-entry does not restart the count or create a routine approval gate.
 
 ## Install for Codex
 
@@ -87,9 +86,9 @@ codex plugin add ultrasolve@matt-ramotar
 
 Start a new Codex task after installation so the eight `ultrasolve:<skill>`
 entries are loaded. `ultrasolve:define` and `ultrasolve:solve` allow implicit
-invocation; all six leaf skills are explicit-only. Installation changes host
+invocation. All six leaf skills are explicit-only. Installation changes host
 configuration and is a separate user action. Version `0.2.0` remains under a
-publication hold; local verification does not establish public availability.
+publication hold. Local verification does not establish public availability.
 
 ## Load for Claude Code
 
@@ -100,7 +99,7 @@ claude --plugin-dir /absolute/path/to/Ultrasolve
 ```
 
 The declared minimum is Claude Code 2.1.143. The development baseline is
-2.1.215 or newer; current local capability observations and their limits are
+2.1.215 or newer. Current local capability observations and their limits are
 recorded in [runner feasibility](evals/runner-feasibility.md). Validate a local
 checkout strictly before relying on its packaging:
 
@@ -117,7 +116,7 @@ retain `disable-model-invocation: true` and are explicit-only commands.
 The router composes the six canonical method reference modules as its own
 method library. It does not invoke a disabled public command or use its
 entrypoint as a fallback. Direct commands load the same method modules. A
-denied method, resource, or action ends that path; another loader, alias, or
+denied method, resource, or action ends that path. Another loader, alias, or
 copy cannot override the restriction.
 
 ## Install for a generic Agent Skills client
@@ -125,7 +124,7 @@ copy cannot override the restriction.
 Install or copy the complete [agent-skills collection](agent-skills/) into
 the client's supported collection location. Keep all eight sibling directories
 and their references together. An isolated copied skill is incomplete.
-Generic clients expose the bare skill names; invocation-policy enforcement
+Generic clients expose the bare skill names. Invocation-policy enforcement
 depends on the client, so manual-only declarations may be advisory there.
 
 Before routing, the instructions require checking eighteen resources: eight
@@ -140,13 +139,13 @@ method cores. The router, candidate comparison, mandatory map-back, authority
 and uncertainty rules, effort bound, and validation controls are authored
 extensions. Generalize's structure-exposing parameterization is also an
 authored extension. The definition entry draws on Polya, Duncker, Keeney,
-Chamberlin, and related sources; it has no Shannon core. The
+Chamberlin, and related sources. It has no Shannon core. The
 [Shannon notes](agent-skills/solve/references/shannon-source-notes.md) and
 [definition notes](agent-skills/define/references/problem-posing-sources.md)
 separate historical ideas from authored procedures.
 
 The runtime consists of static instructions and metadata. Python checks and
-the evaluation bundle builder are development tools; they never auto-run in a
+the evaluation bundle builder are development tools. They never auto-run in a
 host session. See [privacy](PRIVACY.md) and [testing](TESTING.md).
 
 ```text

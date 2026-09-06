@@ -6,10 +6,10 @@ description: "Use when a well-defined problem is genuinely stuck after reasoned 
 # Solve a Stuck Problem
 
 Use a Shannon-inspired set of lenses to transform a genuinely stuck problem,
-then map the result back to the original problem. The source ideas and the
-collection's authored workflow are distinguished in
-[Shannon source notes](references/shannon-source-notes.md); the router,
-candidate comparison, and mandatory map-back are collection synthesis.
+then map the result back to the original problem.
+[Shannon source notes](references/shannon-source-notes.md) distinguish the source
+ideas from the collection's authored workflow. The router, candidate comparison,
+and mandatory map-back are collection synthesis.
 
 ## Boundaries
 

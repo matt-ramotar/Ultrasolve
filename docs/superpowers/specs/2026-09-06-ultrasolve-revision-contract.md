@@ -1,6 +1,6 @@
 Ultrasolve revision contract — 6 September 2026
 
-This document fixes the implementation choices for the parallel revision plan approved by the user on 6 September 2026. These choices are the frozen implementation baseline. They are product decisions for this revision, not empirically validated defaults or claims about host behavior.
+The choices below are the frozen implementation baseline for the parallel revision plan approved by the user on 6 September 2026. They are product decisions for this revision, not empirically validated defaults or claims about host behavior.
 
 Source baseline: `a2dcdd9d82653904c98f465fdf4cf06be5e248d6`, version `0.2.0`. The preceding review found twelve improvement areas. The companion plan contains their complete coverage map and execution assignments, so execution does not depend on access to the earlier conversation.
 
@@ -14,7 +14,7 @@ The six public leaf `SKILL.md` files retain portable name/description frontmatte
 
 The router reads the ordinary method modules as its own documented method library. It does not invoke public leaf commands and does not use a public leaf entrypoint as a fallback loader. The Claude wrappers continue to load their corresponding canonical entrypoints. Keep their current manual-invocation flags; Codex retains two true and six false implicit-invocation flags.
 
-This architecture was selected over a smaller edit to the native-loader preference because it makes command policy and internal composition distinct. A runtime orchestrator or code-based solver would expand the product unnecessarily. Actual acceptance of the composed workflow by a host remains a runtime verification question.
+This architecture was selected over a smaller edit to the native-loader preference because it makes command policy and internal composition distinct. A runtime orchestrator or code-based solver would expand the product beyond this revision's scope. Whether a host accepts the composed workflow still requires runtime verification.
 
 **D2 — Restriction precedence and integrity**
 

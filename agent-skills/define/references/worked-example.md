@@ -10,7 +10,7 @@ governs authority, inherited uncertainty, results, and effort.
 
 > "Leadership approved Kafka for our queue incidents; migration plan by tomorrow."
 
-The following is the complete fictional source input for the main trace:
+Complete fictional source input for the main trace:
 
 > - Fourteen incidents were recorded in two classes: lost-job incidents and
 >   backlog stalls. Class counts, incident details, and the reporting interval
@@ -30,8 +30,8 @@ identity and reachability are supplied; no additional owner is invented.
 
 ## 2. Compact first response
 
-The following illustrates a first response of roughly 250 words. The later
-sections expose the reasoning for teaching purposes.
+The first response below is roughly 250 words. Later sections explain its
+reasoning.
 
 > Kafka is a binding choice for this assignment. I’ll prepare the migration
 > plan by tomorrow and keep its claimed benefit conditional on the evidence.

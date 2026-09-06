@@ -1,1 +1,1 @@
-"""Development contracts for Ultrasolve; no model or host execution."""
+"""Development contracts for Ultrasolve. No model or host execution."""

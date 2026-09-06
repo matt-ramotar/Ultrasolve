@@ -1,7 +1,7 @@
 """Deterministic contract for the portable Ultrasolve corpus and native adapters.
 
-This suite validates the target ``ultrasolve`` location. All plugin paths
-are derived from this file rather than hard-coded.
+The suite locates the ``ultrasolve`` checkout from this file and derives all
+plugin paths from it.
 """
 
 from __future__ import annotations

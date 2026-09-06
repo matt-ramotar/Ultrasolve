@@ -1,14 +1,14 @@
 # Testing Ultrasolve
 
 Version `0.2.0` separates free local verification from host behavior and
-measured effectiveness. The publication hold remains: checks do not authorize
+measured effectiveness. The publication hold remains. Checks do not authorize
 a commit, push, release, marketplace publication, or personal installation.
 Model evaluations require a supported isolation boundary and separately
 authorized spending.
 
 ## One free check
 
-Run from any working directory, using the path to this checkout's script:
+From this checkout, run:
 
 ```sh
 python3 tools/check.py
@@ -31,7 +31,7 @@ The maintained suites cover:
   from development plans, evaluator fixtures, and source-code hygiene.
 - Temporary-copy mutations for wrong wrappers, policies, descriptions,
   versions, missing dependencies, duplicated bodies, and unsafe bundles.
-  An unmodified copy must pass first; a harmless explanatory paraphrase must
+  An unmodified copy must pass first. A harmless explanatory paraphrase must
   remain acceptable.
 - The illustrative source-time freshness model, v2 evaluation structure and
   invariant coverage, and reproducible 42-file runtime bundle construction.
@@ -40,7 +40,7 @@ Literal file, identity, version, and flag checks protect interfaces. Source
 instruction checks do not establish that a model follows those instructions.
 The timing test verifies a model of the example, not a deployed cache.
 
-For a focused failure, run the relevant suite, for example:
+To investigate a failure, run the relevant suite:
 
 ```sh
 python3 -m unittest tests.test_plugin_contract -v
@@ -52,8 +52,8 @@ python3 -m unittest tests.test_eval_bundle -v
 ```
 
 Retain the first failing output, explain the correction, and rerun checks
-affected by that correction. The free entrypoint is the aggregate check;
-there is no requirement to repeat every passing suite separately.
+affected by that correction. The free entrypoint runs the full suite. There
+is no requirement to repeat every passing suite separately.
 
 The CI workflow runs the same entrypoint on Linux and macOS with Python 3.11,
 read-only repository permissions, and pinned official actions. A local pass
@@ -64,7 +64,7 @@ or workflow file does not prove a hosted CI run for this revision.
 The allowlist is [runtime-files.json](evals/runtime-files.json). It includes
 four manifests, eight canonical entries, eight Codex metadata files, eight
 Claude wrappers, six method modules, the shared workflow, five existing
-references, privacy policy, and license: 42 exact paths, without globs.
+references, privacy policy, and license. These are 42 exact paths, without globs.
 
 Use fresh external paths for the output directory and manifest:
 
@@ -108,14 +108,14 @@ claude plugin eval --help
 
 The inventory should contain exactly eight skills and no duplicated command
 collection, agents, hooks, MCP servers, or LSP servers. Strict validation
-proves packaging; inventory proves discovery. Neither proves that the router
+proves packaging. Inventory proves discovery. Neither proves that the router
 loads its full modules in order or that the host enforces invocation policy.
 
 Codex capability inspection uses `codex --version`, `codex plugin --help`,
 and `codex exec --help`. Current observations, unsupported or unverified
 requirements, and per-host statuses are recorded in
 [runner feasibility](evals/runner-feasibility.md). Optional portable validators
-and static analyzers supplement the free checks; retain raw findings and
+and static analyzers supplement the free checks. Retain raw findings and
 interpret their heuristics rather than treating scores as behavioral proof.
 
 A fresh installation is a separate check with separate authority. This
@@ -141,7 +141,7 @@ invariants, and required outcome criteria. See its
 
 Every original invariant must map to a required outcome criterion. Report
 invocation compliance, method compliance, outcome correctness, and utility
-separately. A label-perfect answer can fail an outcome constraint; a concise
+separately. A label-perfect answer can fail an outcome constraint. A concise
 answer can be correct without method terminology. Tests validate this corpus's
 structure and coverage, not the semantic correctness of model answers.
 Calibration labels are authored expectations until a real judge is tested.
@@ -166,7 +166,7 @@ No subject or judge run is part of free verification. Before T11:
    full events with tool calls and order, raw answers, per-criterion judgments,
    complete/error/timeout/abort records, and all partial results.
 5. Calibrate the judge, then run a one-repetition diagnostic pilot for each
-   major family. A defective fixture receives a new version; existing evidence
+   major family. A defective fixture receives a new version. Existing evidence
    is never overwritten.
 6. Compare with-plugin and without-plugin arms using equivalent substantive
    input. Remove only invocation syntax where necessary, randomize order, and

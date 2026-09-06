@@ -1,7 +1,7 @@
 # Problem-Posing Sources and Authored Synthesis
 
-These notes separate historical and scholarly source material from the
-workflow controls built for this method. A source can motivate a core move
+These notes separate historical and scholarly source material from this
+method's workflow controls. A source can motivate a core move
 without being the source of the ledger, marks, contract, or handoff rules.
 Nothing in this method derives from Shannon's 1952 talk, which begins with a
 problem already in hand.
@@ -137,22 +137,22 @@ operational criteria. The canonical result and effort policy lives in the
 
 ### Five Whys as the default regress
 
-Rejected because a fixed single chain encourages a single-cause story and
+A fixed single chain encourages a single-cause story and
 supplies no principled stopping rule. Keeney's decision-context boundary gives
 the goal regress a stopping condition, while the Chamberlin-Platt-Heuer line
 keeps causal hypotheses plural and evidence-discriminated.
 
 ### Absolute "never mention a solution in a problem statement" rule
 
-Rejected because erasing a received candidate loses provenance and can make a
+Erasing a received candidate loses provenance and can make a
 definition challenge read as refusal. Keep a still-open candidate in its
 comparison set without making it the outcome. Keep a binding means in the
 contract's constraints and the authorized artifact in its deliverable scope;
 neither establishes that the desired outcome will follow.
 
-### Full CATWOE ritual for every definition
+### Full CATWOE for every definition
 
-Rejected because the full ceremony adds categories that this narrow entry
+The full procedure adds categories that this narrow entry
 decision does not always need. Only the relevant owner and worldview elements
 are retained at this scope. A broader soft-systems inquiry can use the full
 method when the situation warrants it.

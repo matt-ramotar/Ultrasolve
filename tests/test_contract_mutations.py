@@ -1,4 +1,4 @@
-"""Targeted mutations of actual runtime files; these are structural checks."""
+"""Structural checks using targeted mutations of runtime files."""
 
 from __future__ import annotations
 

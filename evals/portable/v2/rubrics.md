@@ -2,10 +2,11 @@
 
 These are authored evaluation criteria, not measured model or judge results.
 The twelve transfer cases M01–M12 are held out from this plugin's shipped
-worked examples only; the other 52 acceptance cases include regressions
-intentionally related to those examples. They are not confidential and are not guaranteed unseen during model
-training. Documented transfer constraints are an authoring judgment, not a
-confidentiality or statistical-generalization claim.
+worked examples only. The other 52 acceptance cases include regressions
+intentionally related to those examples. These cases are not confidential and
+are not guaranteed unseen during model training. The documented transfer
+constraints reflect authoring judgment, with no claim of confidentiality or
+statistical generalization.
 
 ## Evaluation contract
 

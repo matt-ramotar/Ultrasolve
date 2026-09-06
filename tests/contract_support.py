@@ -1,7 +1,7 @@
-"""Small structural contracts for actual runtime files, not model behavior.
+"""Structural contracts for runtime files, not model behavior.
 
-The parsers accept the repository's deliberately restricted metadata surface.
-The audit checks paths, metadata and method placement; it does not interpret prose.
+The parsers accept the repository's restricted metadata forms.
+The audit checks paths, metadata, and method placement. It does not interpret prose.
 """
 
 from __future__ import annotations
@@ -107,7 +107,7 @@ def frontmatter(path: Path) -> dict[str, str]:
 
 
 def simple_yaml_sections(path: Path) -> dict[str, dict[str, str]]:
-    """Parse the intentionally tiny two-level agents/openai.yaml shape."""
+    """Parse the repository's two-level agents/openai.yaml shape."""
 
     sections: dict[str, dict[str, str]] = {}
     current: str | None = None

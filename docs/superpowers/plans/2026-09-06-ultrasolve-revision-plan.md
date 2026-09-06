@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking. The scope and ownership rules below take precedence over generic commit or parallelism suggestions.
 
-**Goal:** Make Ultrasolve's reasoning workflows consistent, respectful of delegated authority, composable across hosts, and ready for honest outcome evaluation.
+**Goal:** Make Ultrasolve's reasoning workflows consistent, respectful of delegated authority, composable across hosts, and ready for outcome evaluation.
 
 **Architecture:** Preserve eight public entrypoints and a single shared corpus. Introduce a shared workflow contract and six reusable method reference modules, then update definition, routing, examples, host surfaces, tests, and evaluation assets through disjoint work packages. Keep model execution separate from free revision work.
 
@@ -10,9 +10,11 @@
 
 ---
 
-Execution was approved on 6 September 2026. Checked steps record completed work; unchecked steps remain outstanding. I2 integrated T5–T8 after producer release and non-author review. The host rejected additional fresh agents at its worker limit, so existing workers reviewed other owners’ work and the orchestrator reviewed their implementations; the receipts identify these review scopes explicitly. Raw evidence is stored outside the repository at /private/tmp/ultrasolve-revision-hlri7l9o. Source baseline is `a2dcdd9d82653904c98f465fdf4cf06be5e248d6` on `main`, version `0.2.0`. At planning time the checkout is `/Users/matt/src/matt-ramotar/Ultrasolve`. Paths in ownership tables are relative to the executing checkout; commands run from its root. A relocated checkout must work without editing paths.
+Execution was approved on 6 September 2026. Checked steps record completed work. Unchecked steps remain outstanding. I2 integrated T5–T8 after producer release and non-author review. The host rejected additional fresh agents at its worker limit, so existing workers reviewed other owners’ work and the orchestrator reviewed their implementations. The receipts identify these review scopes explicitly.
 
-Free revision closeout: T0–T10 are complete locally. The corrected entrypoint passed 129 tests on Python 3.9.6; the external 42-file artifact matches final runtime bytes. The final status-only document edits receive focused hygiene/link checks. The host/behavior/effectiveness and publication limits remain in [runner feasibility](../../../evals/runner-feasibility.md). T11 remains unchecked and separately gated.
+Raw evidence is stored outside the repository at /private/tmp/ultrasolve-revision-hlri7l9o. The source baseline is `a2dcdd9d82653904c98f465fdf4cf06be5e248d6` on `main`, version `0.2.0`. At planning time the checkout was `/Users/matt/src/matt-ramotar/Ultrasolve`. Paths in ownership tables are relative to the executing checkout; commands run from its root. A relocated checkout must work without editing paths.
+
+At the free revision closeout, T0–T10 were complete locally. The corrected entrypoint passed 129 tests on Python 3.9.6. The external 42-file artifact matched the final runtime bytes at that checkpoint. The final status-only document edits receive focused hygiene/link checks. The host/behavior/effectiveness and publication limits remain in [runner feasibility](../../../evals/runner-feasibility.md). T11 remains unchecked and separately gated.
 
 Read the [revision contract](../specs/2026-09-06-ultrasolve-revision-contract.md) first. Its D1–D11 decisions are the common specification. Do not let parallel agents independently choose a different module layout, effort bound, status vocabulary, authority policy, or evaluation format. The prior review is retained at `/Users/matt/.codex/visualizations/2026/09/05/01a0738a-632b-7e80-86c9-d1aeb19a577a/ultrasolve-review.md`; this plan is self-contained if that artifact is unavailable.
 
@@ -351,4 +353,4 @@ claims, and cross-owner requests. Do not claim unexecuted behavior passed.
 
 The orchestrator fills the task ID, evidence directory, verified checkout, and any authorized scope adjustment before dispatch. Task-specific file ownership takes precedence over a generic skill's suggestion to make a commit or edit a convenient neighboring file.
 
-Historical planning validation, before execution: a fresh independent reviewer approved the task decomposition, ownership, four-slot schedule, free/conditional phase separation, and inventory arithmetic. Its advisory clarifications about metadata readiness, bundle error codes, and incomplete destinations are incorporated above. All 57 existing tests passed with these planning documents present. That earlier check validated the planning artifacts only; implementation evidence is recorded in the checked steps and external receipts above. Behavioral evaluation remains unperformed.
+Before execution, a fresh independent reviewer approved the task decomposition, ownership, four-slot schedule, free/conditional phase separation, and inventory arithmetic. Its advisory clarifications about metadata readiness, bundle error codes, and incomplete destinations are incorporated above. All 57 existing tests passed with these planning documents present. That earlier check validated the planning artifacts only. Implementation evidence is recorded in the checked steps and external receipts above. Behavioral evaluation remains unperformed.
