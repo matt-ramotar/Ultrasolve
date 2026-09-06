@@ -1,233 +1,192 @@
 # Testing Ultrasolve
 
-Deterministic structural checks gate version `0.2.0`. Behavioral model
-evaluations are stochastic evidence only and require separate approval because
-they spend credits. Do not run a paid Claude or Codex behavioral evaluation as
-part of this adaptation. No behavioral result is claimed for this revision.
+Version `0.3.0` separates free local verification from host behavior and
+measured effectiveness. The publication hold remains. Checks do not authorize
+a commit, push, release, marketplace publication, or personal installation.
+Model evaluations require a supported isolation boundary and separately
+authorized spending.
 
-Run commands from the repository root. Preserve the existing publication hold:
-verification does not authorize a commit, push, tag, release, or public-
-availability claim.
+## One free check
 
-## Python contracts and file hygiene
+From this checkout, run:
 
-Run both suites directly, then run discovery as the aggregate proof:
+```sh
+python3 tools/check.py
+```
+
+From outside the checkout, pass its absolute script path. The checker finds
+the repository from its own location, runs the maintained unittest suite
+sequentially, reports executed checks, and exits nonzero on failure. It makes
+no host, model, installation, or network calls and does not retry failures.
+
+The maintained suites cover:
+
+- The exact eight public entries, four manifests, version parity, thin Claude
+  wrapper targets, matching canonical descriptions, and two automatic/six
+  manual activation policies.
+- Shared resources, six canonical full method bodies, provenance, method
+  obligations, and example evidence boundaries.
+- Repository-wide maintained-text hygiene and local Markdown links, including
+  both YAML suffixes. Runtime/public-document semantic checks are distinct
+  from development plans, evaluator fixtures, and source-code hygiene.
+- Temporary-copy mutations for wrong wrappers, policies, descriptions,
+  versions, missing dependencies, duplicated bodies, and unsafe bundles.
+  An unmodified copy must pass first. A harmless explanatory paraphrase must
+  remain acceptable.
+- The illustrative source-time freshness model, v2 evaluation structure and
+  invariant coverage, and reproducible 42-file runtime bundle construction.
+
+Literal file, identity, version, and flag checks protect interfaces. Source
+instruction checks do not establish that a model follows those instructions.
+The timing test verifies a model of the example, not a deployed cache.
+
+To investigate a failure, run the relevant suite:
 
 ```sh
 python3 -m unittest tests.test_plugin_contract -v
 python3 -m unittest tests.test_portability_contract -v
-python3 -m unittest discover -s tests -p 'test_*.py'
+python3 -m unittest tests.test_example_models -v
+python3 -m unittest tests.test_contract_mutations -v
+python3 -m unittest tests.test_evaluation_contract -v
+python3 -m unittest tests.test_eval_bundle -v
 ```
 
-The contracts cover the definition entry and all seven routed methods,
-provenance, logical safety, mandatory map-back, portable frontmatter, adapter
-isolation, dual manifests, marketplace shape, documentation, native fixture
-structure, provider-neutral activation, and recursive text-file hygiene. Every
-command must exit zero.
+Retain the first failing output, explain the correction, and rerun checks
+affected by that correction. The free entrypoint runs the full suite. There
+is no requirement to repeat every passing suite separately.
 
-## JSON and diff checks
+The CI workflow runs the same entrypoint on Linux and macOS with Python 3.11,
+read-only repository permissions, and pinned official actions. A local pass
+or workflow file does not prove a hosted CI run for this revision.
 
-Parse both plugin manifests and the repository marketplace, then inspect the
-working diff:
+## Build a runtime evaluation artifact
+
+The allowlist is [runtime-files.json](evals/runtime-files.json). It includes
+four manifests, eight canonical entries, eight Codex metadata files, eight
+Claude wrappers, six method modules, the shared workflow, five existing
+references, privacy policy, and license. These are 42 exact paths, without globs.
+
+Use fresh external paths for the output directory and manifest:
 
 ```sh
-python3 -m json.tool .claude-plugin/plugin.json >/dev/null
-python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
-python3 -m json.tool .codex-plugin/plugin.json >/dev/null
-python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
-git diff --check -- .
+python3 tools/eval_bundle.py \
+  --source /absolute/path/to/Ultrasolve \
+  --output /external/new-runtime-directory \
+  --manifest-output /external/new-runtime-manifest.json
 ```
 
-`git diff --check` checks diffs only. The unit suite's recursive file-hygiene
-test is the proof for trailing whitespace and exact final newlines across
-working-tree artifacts regardless of index state.
+The manifest must be outside both source and bundle. The builder rejects
+unsafe destinations, missing dependencies, symlinks, traversal, duplicates,
+and prohibited files. It preserves runtime bytes and emits sorted per-file
+sizes and SHA-256 values, source revision and dirty state when available,
+and an aggregate content hash independent of location or Git metadata.
+Unknown metadata stays `unknown`. Rejected builds exit nonzero and do not
+emit a completed manifest. Existing content is never deleted to force success.
 
-## Claude validation and runtime inventory
+The artifact excludes README, TESTING, plans/specs, tests, tools, evaluations,
+results, and repository metadata. Generated artifacts and raw logs remain
+outside the checkout.
 
-Claude Code 2.1.215 or newer is the development baseline:
+**Bundle composition is not filesystem isolation.** A later subject must
+also be unable to read evaluator material or the original checkout through
+any other path. An eval-stripped copy, changed working directory, or tool
+permission list alone does not establish that boundary. Do not run a subject
+until a supported restriction mechanism and access evidence establish it.
+Never work around a denied method, resource, or action.
+
+## Read-only host packaging checks
+
+When Claude Code is installed:
 
 ```sh
 claude --version
 claude plugin validate .claude-plugin/marketplace.json --strict
 claude plugin validate .claude-plugin/plugin.json --strict
 claude --plugin-dir . plugin details ultrasolve
+claude plugin eval --help
 ```
 
-Strict validation must report valid marketplace and plugin manifests plus a
-valid adapter. Runtime details must inventory exactly eight skills: two
-model-invocable entries (`solve`, `define`) and six manual-only leaves, with no
-root `skills/` directory or duplicate commands.
+The inventory should contain exactly eight skills and no duplicated command
+collection, agents, hooks, MCP servers, or LSP servers. Strict validation
+proves packaging. Inventory proves discovery. Neither proves that the router
+loads its full modules in order or that the host enforces invocation policy.
 
-## Portable and Codex static analysis
+Codex capability inspection uses `codex --version`, `codex plugin --help`,
+and `codex exec --help`. Current observations, unsupported or unverified
+requirements, and per-host statuses are recorded in
+[runner feasibility](evals/runner-feasibility.md). Optional portable validators
+and static analyzers supplement the free checks. Retain raw findings and
+interpret their heuristics rather than treating scores as behavioral proof.
 
-Point the variables at the installed validator and plugin analyzer rather than
-embedding a maintainer home directory:
+A fresh installation is a separate check with separate authority. This
+revision changes neither personal configuration roots nor installed caches.
+The runtime evaluation bundle is not a replacement distribution. Source/cache
+parity from a prior installation is historical evidence for those exact bytes,
+not proof that the current revision is installed.
 
-```sh
-: "${SKILL_VALIDATOR:?Set SKILL_VALIDATOR to skill-creator/scripts/quick_validate.py}"
-for skill in agent-skills/*; do python3 "$SKILL_VALIDATOR" "$skill" || exit 1; done
-: "${PLUGIN_EVAL_JS:?Set PLUGIN_EVAL_JS to plugin-eval.js}"
-for skill in agent-skills/*; do node "$PLUGIN_EVAL_JS" analyze "$skill" --format json || exit 1; done
-```
+## Historical and revised fixtures
 
-All eight portable skills must pass Agent Skills validation. Record static
-analyzer findings per skill and resolve required fixes; do not treat advisory
-suggestions as behavioral evidence.
+Both [Claude-native v1 fixtures](evals/behavioral/v1/) and the
+[portable v1 matrix](evals/portable/v1/activation-tests.md) remain byte-for-byte
+unchanged. Their original prompts and graders preserve the historical
+contract, including behavior revised here. They are not silently repurposed
+as v2 or treated as current acceptance evidence.
 
-## Isolated Codex marketplace installation
+The [v2 corpus](evals/portable/v2/cases.json) is provider-neutral. It contains
+52 expanded routing/regression/integration cases plus twelve transfer cases,
+with exact stimuli, multi-turn release observations, supplied facts, stable
+invariants, and required outcome criteria. See its
+[rubrics](evals/portable/v2/rubrics.md) and
+[authored calibration answers](evals/portable/v2/grader-calibration.json).
 
-Use an empty home so installed state cannot come from a previous cache. The
-checkout path is the marketplace source, and `HOME` remains unchanged:
+Every original invariant must map to a required outcome criterion. Report
+invocation compliance, method compliance, outcome correctness, and utility
+separately. A label-perfect answer can fail an outcome constraint. A concise
+answer can be correct without method terminology. Tests validate this corpus's
+structure and coverage, not the semantic correctness of model answers.
+Calibration labels are authored expectations until a real judge is tested.
 
-```sh
-export CODEX_HOME="$(mktemp -d /tmp/ultrasolve-codex-home.XXXXXX)"
-codex plugin marketplace add "$(pwd)"
-codex plugin add ultrasolve@matt-ramotar --json >"$CODEX_HOME/install.json"
-codex plugin list --available --json >"$CODEX_HOME/plugin-list.json"
-python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); p=[x for x in d["installed"] if x["pluginId"]=="ultrasolve@matt-ramotar"]; assert len(p)==1 and p[0]["installed"] and p[0]["enabled"] and p[0]["version"]=="0.2.0" and p[0]["installPolicy"]=="AVAILABLE" and p[0]["authPolicy"]=="ON_INSTALL"' "$CODEX_HOME/plugin-list.json"
-```
+Transfer cases are held out from the plugin's shipped examples. They are
+public and are neither confidential nor guaranteed unseen in model training.
+Their changed constraints must make copying an example's answer inadequate.
 
-Require the inventory to show `ultrasolve@matt-ramotar` installed and enabled
-at version `0.2.0`. Verify the cached eight-skill inventory and policy, then
-prove full source/cache parity:
+## Separately authorized behavioral protocol
 
-```sh
-export INSTALLED_ULTRASOLVE="$CODEX_HOME/plugins/cache/matt-ramotar/ultrasolve/0.2.0"
-test "$(find "$INSTALLED_ULTRASOLVE/agent-skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')" = 8
-test "$(rg -l '^  allow_implicit_invocation: true$' "$INSTALLED_ULTRASOLVE/agent-skills" | wc -l | tr -d ' ')" = 2
-rg -q '^  allow_implicit_invocation: true$' "$INSTALLED_ULTRASOLVE/agent-skills/solve/agents/openai.yaml"
-rg -q '^  allow_implicit_invocation: true$' "$INSTALLED_ULTRASOLVE/agent-skills/define/agents/openai.yaml"
-test "$(rg -l '^  allow_implicit_invocation: false$' "$INSTALLED_ULTRASOLVE/agent-skills" | wc -l | tr -d ' ')" = 6
-diff -ru --exclude .git . "$INSTALLED_ULTRASOLVE"
-```
+No subject or judge run is part of free verification. Before T11:
 
-The local marketplace entry is a clean-room validation surface only. It does
-not clear the name-screening hold or establish public availability.
+1. Verify an actual supported runner with separate evaluator/runtime inputs
+   and a filesystem boundary covering every permitted access path. Do not
+   invent flags or change personal configuration roots to simulate isolation.
+2. Obtain explicit subject/judge spending authorization and record the exact
+   cap, including any advertised overrun behavior.
+3. Freeze a run manifest: fixture version and hashes, runtime content hash,
+   exact host version, version-specific subject and judge IDs, tools, arms,
+   repetitions, time/turn/cost bounds, failure rules, and evidence paths.
+4. Retain immutable stimuli, grader definitions and calibration expectations,
+   full events with tool calls and order, raw answers, per-criterion judgments,
+   complete/error/timeout/abort records, and all partial results.
+5. Calibrate the judge, then run a one-repetition diagnostic pilot for each
+   major family. A defective fixture receives a new version. Existing evidence
+   is never overwritten.
+6. Compare with-plugin and without-plugin arms using equivalent substantive
+   input. Remove only invocation syntax where necessary, randomize order, and
+   blind outcome grading when feasible. Set later caps from observed pilot
+   cost plus explicit headroom and authorization.
 
-## Provider-neutral activation matrix
+Critical routing, authority, status, and denial cases require every mandatory
+criterion for each required complete run under the approved manifest.
+Skipped paid graders, interruption, timeout, or a cost-cap abort are partial
+evidence. An aggregate score cannot replace complete-run accounting.
 
-The authored matrix lives at
-[`evals/portable/v1/activation-tests.md`](evals/portable/v1/activation-tests.md).
-It specifies reproducible stimuli and expected outcomes without assuming a
-named provider, tool, command syntax, or grader implementation. It covers
-automatic router activation, ordinary-work nonactivation, the debugging
-boundary, explicit invocation of each leaf, router dispatch, and mandatory
-map-back.
+Report exact task coverage, overrides, latency, and cost alongside the four
+criterion categories. Exact-prompt repeatability is not broad precision,
+recall, reliability, or general effectiveness. Small samples stay qualified.
 
-## Claude-native behavioral fixture contract
+## Completion record
 
-Claude-specific fixtures remain under [`evals/behavioral/v1/`](evals/behavioral/v1/).
-Version `v1` becomes immutable once evidence is recorded. Any prompt, grader,
-tool allowance, or criterion change after that creates `v2`; never rewrite an
-evaluated fixture in place.
-
-Thin Claude wrappers must read the canonical core, so every fixture that
-invokes a skill permits `Read`. To keep the model from reading prompt or grader
-answers, every behavioral run must use an eval-stripped copy. Prepare it and
-prove the exclusion before any separately approved run:
-
-```sh
-export EVAL_PLUGIN_ROOT="$(mktemp -d /tmp/ultrasolve-eval-plugin.XXXXXX)"
-rsync -a --delete --exclude .git/ --exclude evals/ ./ "$EVAL_PLUGIN_ROOT/"
-test ! -e "$EVAL_PLUGIN_ROOT/evals"
-claude plugin validate "$EVAL_PLUGIN_ROOT" --strict
-```
-
-Claude Code 2.1.215 currently blocks safe execution of that separation. Its
-`claude plugin eval --help` interface exposes only one plugin target, coupling
-fixture discovery to the loaded plugin root; it does not expose separate
-fixture-source and loaded-plugin-root arguments. A zero-dollar probe reached
-the installed early-access gate before case discovery, ran no agent, spent no
-credits, and produced no behavioral result.
-
-Targeting the source root would expose `evals/` to the agent, while targeting
-the eval-stripped root would remove fixture discovery. Do not run either unsafe
-substitute and do not invent unsupported flags. Paid execution is blocked until
-an approved runner exposes a separate fixture source and an eval-stripped
-loaded plugin root. Once that separation exists, use the immutable source-tree
-fixture as evaluator input, load only `EVAL_PLUGIN_ROOT` for the agent, retain
-the filesystem proof above, and apply the exact acceptance matrix below.
-Existing Read-enabled router cases also retain native zero-call anti-leak
-graders as defense in depth.
-
-Each case stores an exact `prompt.md` and focused graders under `graders/`.
-Prompt frontmatter records `max_turns`, `timeout_seconds`, and the smallest
-allowed tool set. Every direct leaf case starts its prompt body with the
-literal native command. Trace-sensitive cases use native checks when the
-evaluator can decide deterministically and a focused trace grader only where
-tool-versus-answer ordering requires semantic judgment.
-
-The debugging-boundary prompt deliberately withholds decisive intermediate
-values and source lines. Its graders require an evidence-gathering plan and
-reject a specific root cause or fix presented as established before new
-evidence isolates it.
-
-## What an approved behavioral run may support
-
-Five repetitions of the activation or nonactivation fixture measure
-repeatability on those exact prompts; they do not establish general activation
-precision or recall. Acceptance requires:
-
-- `activation`: at least 4/5 complete with-plugin runs on the exact prompt;
-- `nonactivation`: at least 4/5 complete runs in each required arm;
-- every direct leaf and critical safety case: 3/3 complete runs;
-- router Read/order, debugging safety, and map-back: every required criterion
-  passes in 3/3 complete runs in every required arm.
-
-A run is complete only when it has no error, timeout, interruption, or
-cost-ceiling abort; no paid grader was skipped; and every required criterion
-for that arm passes. The CLI aggregate threshold cannot enforce the required
-count of wholly passing runs. Use per-run JSON and treat aggregate scores as a
-convenience only. Behavioral results remain evidence-only for `0.2.0`.
-
-| Case | Runs | Ablation | Complete-run claim rule |
-| --- | ---: | --- | --- |
-| `activation` | 5 | `with-without` | 4/5 with-plugin runs |
-| `nonactivation` | 5 | `with-without` | 4/5 in each required arm |
-| `router-read-order` | 3 | `none` | 3/3 |
-| `define` | 3 | `none` | 3/3 |
-| `define-activation` | 5 | `with-without` | 4/5 with-plugin runs |
-| `define-nonactivation` | 5 | `with-without` | 4/5 in each required arm |
-| `simplify` | 3 | `none` | 3/3 |
-| `analogize` | 3 | `none` | 3/3 |
-| `restate` | 3 | `none` | 3/3 |
-| `generalize` | 3 | `none` | 3/3 |
-| `decompose` | 3 | `none` | 3/3 |
-| `invert` | 3 | `none` | 3/3 |
-| `debugging-boundary` | 3 | `with-without` | 3/3 in each required arm |
-| `map-back` | 3 | `none` | 3/3 |
-
-## Required evidence bundle
-
-No result exists, and no pass, failure, reliability, or uplift claim may be
-made, until these artifacts are stored together:
-
-- immutable prompt and grader copies;
-- full machine-readable event streams with tool calls and ordering;
-- raw model outputs and per-run, per-criterion grader results;
-- plugin tree SHA and exact provider CLI version;
-- agent-model and judge-model identifiers;
-- exact command, run count, ablation mode, allowed tools, and cost ceiling;
-- aggregate JSON, self-contained report, and partial results from any abort;
-- proof that the loaded plugin copy had no `evals/` directory.
-
-A cost-cap abort is partial evidence and cannot support a score claim.
-
-## Separately approved paid-run protocol
-
-Only after the safe runner boundary exists and spending is explicitly approved,
-begin with a one-repetition pilot for every exact `v1` case and its tabled
-ablation mode. Pin a full version-specific agent model ID and a distinct
-Sonnet-tier-or-better judge model ID; do not use moving aliases. The pilot
-ceiling is an authorization limit, not a cost estimate. Set each full-run cap
-from measured pilot cost multiplied by planned repetitions plus explicit
-headroom, and preserve the measurement and formula.
-
-Store pilot and full runs under different immutable result paths. Record the
-exact fixture version, model versions, CLI version, tool allowances, complete
-table row, and separated source/loaded-root evidence. Apply the same exact-case
-rules to a future provider-specific realization of the provider-neutral
-activation matrix; do not infer broad reliability from these fixed prompts.
-
-Do not execute any behavioral model evaluation without separate, explicit
-approval to spend evaluation credits.
+Track three independent milestones: `FREE-REVISION-READY`,
+`HOST-BEHAVIOR-VERIFIED` for each named host/version, and
+`EFFECTIVENESS-MEASURED` for the evaluated task set. One does not imply the
+next. Keep the external evidence receipt and the runner-feasibility record
+consistent with what actually ran, including unavailable capabilities and
+unperformed hosted CI or installation checks.

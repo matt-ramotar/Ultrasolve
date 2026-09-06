@@ -2,19 +2,22 @@
 
 Effective date: 2026-07-19.
 
-This policy covers the Ultrasolve plugin, the Agent Skills collection in this
-repository, distributed for use with Claude Code, Codex, and other Agent
-Skills clients. It is written by the plugin's author and applies to the
-plugin itself, not to the host application you run it in.
+This policy covers the Ultrasolve plugin and its Agent Skills collection for
+Claude Code, Codex, and other Agent Skills clients. The plugin's author wrote
+it to cover the plugin itself. Your host application has its own policy.
 
 ## What Ultrasolve is
 
-Ultrasolve's runtime surface is static instruction files in Markdown plus
-JSON manifests. It executes nothing itself. There are no MCP servers, no
-hooks, no bundled binaries, and no scripts that run in your session. The
-repository also contains a Python test suite, which is development tooling
-and is never loaded by your host. Your AI coding host loads the instructions
-into a session the same way it loads any other text.
+Ultrasolve's runtime consists of static Markdown instructions, JSON manifests,
+and YAML host metadata. It executes nothing itself. There are no MCP servers,
+hooks, bundled binaries, or scripts that run in your session. Your AI coding
+host loads the instructions into a session the same way it loads any other
+text.
+
+The repository also contains Python tests, a local checker, and a runtime
+bundle builder. These development tools never auto-run in a host session.
+The bundle builder copies an explicit set of runtime files and writes an
+external content manifest. It makes no network or model calls.
 
 ## Data collection
 
@@ -28,16 +31,16 @@ The problems you bring to the router, and everything else in your session,
 are processed by your host agent (for example Claude Code or Codex) under
 that host's own privacy policy and settings. Ultrasolve adds instructions to
 that session and nothing more. It does not see, store, or transmit your
-content. There is no code and no service behind it that could.
+content. No runtime service receives it.
 
 ## Files the plugin reads
 
 The instructions direct the agent to read files inside the plugin's own
 directory: the definition entry and its references, plus the router's
-integrity preflight and the six method files. They also permit the agent to
-use tools already available in your host, such as research tools, when facts
-are missing. Any such use runs under your host's permission controls and
-policies, not under this plugin.
+integrity preflight, shared workflow contract, and six method modules. They
+also permit the agent to use tools already available in your host, such as
+research tools, when facts are missing. Your host's permission controls and
+policies govern that use.
 
 ## Third-party links
 

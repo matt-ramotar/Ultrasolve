@@ -1,6 +1,6 @@
 interface:
   display_name: "Define"
-  short_description: "State the unstated problem before any plan commits to it."
-  default_prompt: "Use $define to sort the request, regress the goal to the mandate, and write a problem contract with observable success criteria before choosing a deliverable."
+  short_description: "Define an unsettled problem proportionally."
+  default_prompt: "Use $define to clarify this felt problem: [situation, desired outcome, constraints, authorized deliverable, and evidence]. Preserve binding decisions and prepare supported conditional work."
 policy:
   allow_implicit_invocation: true

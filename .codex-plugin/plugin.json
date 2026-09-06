@@ -1,6 +1,6 @@
 {
   "name": "ultrasolve",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Rigorous methods for solving the hardest problems.",
   "author": {
     "name": "Matt Ramotar"
@@ -17,8 +17,8 @@
   "skills": "./agent-skills/",
   "interface": {
     "displayName": "Ultrasolve",
-    "shortDescription": "Define the real problem, then escape it with rigorous lenses.",
-    "longDescription": "Ultrasolve states the unstated problem behind a request, then routes well-defined, genuinely stuck problems through six rigorous transformation lenses, then maps the result back to the original constraints and success criteria.",
+    "shortDescription": "Define unsettled problems and find new routes through stuck ones.",
+    "longDescription": "Ultrasolve helps clarify unsettled outcomes and routes defined, stuck problems through six reasoning methods. It preserves authorized work, constraints, unresolved questions, and effort limits, then maps results back with explicit verification gaps.",
     "developerName": "Matt Ramotar",
     "category": "Productivity",
     "websiteURL": "https://github.com/matt-ramotar/Ultrasolve",
@@ -30,9 +30,9 @@
       "Plan"
     ],
     "defaultPrompt": [
-      "Unblock a genuinely stuck problem with the Ultrasolve router.",
-      "Invert this problem, then forward-check the result against the original constraints.",
-      "Decompose this problem into answerable seams and recompose the result."
+      "Use $define to clarify this felt problem, preserving my authorized deliverable: [situation, desired outcome, constraints, and evidence].",
+      "Use $solve on this well-defined problem with repeated dead ends: [success criteria, constraints, failed attempts, and evidence].",
+      "Use $invert to work backward from [desired result], preserve [constraints], and forward-check the route from [current state]."
     ]
   }
 }

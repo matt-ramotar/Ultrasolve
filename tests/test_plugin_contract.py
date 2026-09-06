@@ -1,16 +1,20 @@
 """Deterministic contract for the portable Ultrasolve corpus and native adapters.
 
-This suite validates the target ``ultrasolve`` location. All plugin paths
-are derived from this file rather than hard-coded.
+The suite locates the ``ultrasolve`` checkout from this file and derives all
+plugin paths from it.
 """
 
 from __future__ import annotations
 
 import json
-import os
 import re
 import unittest
 from pathlib import Path
+
+if __package__:
+    from tests.contract_support import public_contract_files, repository_files
+else:
+    from contract_support import public_contract_files, repository_files
 
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
@@ -289,14 +293,8 @@ def strip_url_destinations(text: str) -> str:
 
 
 def standalone_files() -> list[Path]:
-    """Return checkout files without traversing Git metadata or bytecode caches."""
-    files: list[Path] = []
-    for directory, directories, filenames in os.walk(PLUGIN_ROOT):
-        directories[:] = [
-            name for name in directories if name not in {".git", "__pycache__"}
-        ]
-        files.extend(Path(directory) / filename for filename in filenames)
-    return files
+    """All checkout text remains in scope for hygiene and local links."""
+    return repository_files(PLUGIN_ROOT)
 
 
 class PluginContractTestCase(unittest.TestCase):
@@ -324,12 +322,13 @@ class PluginContractTestCase(unittest.TestCase):
         self.assertTrue(path.is_file(), f"missing skill instructions: {path}")
         return read_text(path)
 
+    def method_text(self, leaf: str) -> str:
+        path = PORTABLE_ROOT / "solve/references/methods" / f"{leaf}.md"
+        self.assertTrue(path.is_file(), f"missing canonical method: {path}")
+        return read_text(path)
+
     def public_files(self) -> list[Path]:
-        return [
-            path
-            for path in standalone_files()
-            if "tests" not in path.relative_to(PLUGIN_ROOT).parts
-        ]
+        return public_contract_files(PLUGIN_ROOT)
 
     def public_markdown(self) -> str:
         return "\n".join(
@@ -362,7 +361,7 @@ class TestIdentityAndSurface(PluginContractTestCase):
         manifest = json.loads(read_text(manifest_path))
         self.assertEqual("ultrasolve", manifest.get("name"))
         self.assertEqual("Ultrasolve", manifest.get("displayName"))
-        self.assertEqual("0.2.0", manifest.get("version"))
+        self.assertEqual("0.3.0", manifest.get("version"))
         self.assertEqual(
             "https://json.schemastore.org/claude-code-plugin-manifest.json",
             manifest.get("$schema"),
@@ -415,7 +414,7 @@ class TestIdentityAndSurface(PluginContractTestCase):
             marketplace.get("$schema"),
         )
         self.assertEqual("matt-ramotar", marketplace.get("name"))
-        self.assertEqual("0.2.0", marketplace.get("version"))
+        self.assertEqual("0.3.0", marketplace.get("version"))
         self.assertEqual("Matt Ramotar", marketplace.get("owner", {}).get("name"))
         entries = marketplace.get("plugins", [])
         self.assertEqual(1, len(entries), "marketplace must expose exactly one plugin")
@@ -507,31 +506,32 @@ class TestRouterContract(PluginContractTestCase):
                 f"Codex leaf {leaf} must remain explicit-only",
             )
 
-    def test_router_explicitly_loads_each_leaf_from_plugin_root(self) -> None:
+    def test_router_loads_canonical_methods_and_preflights_entries(self) -> None:
         router = self.skill_text("solve")
         for leaf in LEAVES:
-            path = f"../{leaf}/SKILL.md"
-            self.assertEqual(
-                1,
-                router.count(path),
-                f"solve must name {leaf}'s exact sibling path once",
-            )
-        self.assertEqual(
-            1,
-            router.count("../define/SKILL.md"),
-            "solve must name the define handoff path exactly once",
-        )
-        self.assertRegex(
-            router,
-            r"(?is)(?:read|load).{0,160}selected sibling.{0,240}"
-            r"(?:read|load).{0,160}every selected leaf",
-            "solve must load each selected portable sibling before applying it",
-        )
+            self.assertEqual(1, router.count(f"references/methods/{leaf}.md"))
+            self.assertNotIn(f"../{leaf}/SKILL.md", router)
+        for entry in SKILLS:
+            self.assertIn(f"`{entry}/SKILL.md`", router)
+        self.assertIn("references/workflow-contract.md", markdown_links(router))
+        normalized = re.sub(r"\s+", " ", router).lower()
+        self.assertRegex(normalized, r"read every selected canonical module.{0,100}in full before constructing")
+        self.assertRegex(normalized, r"do not invoke public leaf commands or read their entrypoints as a loading fallback")
 
     def test_router_enforces_the_shared_contract_and_map_back(self) -> None:
-        router = self.skill_text("solve").lower()
-        for required in ("success criteria", "fixed facts", "constraints", "missing", "map back", "verify"):
+        router = re.sub(r"\s+", " ", self.skill_text("solve")).lower()
+        shared = re.sub(r"\s+", " ", read_text(PORTABLE_ROOT / "solve/references/workflow-contract.md")).lower()
+        for required in ("criterion ids", "fixed facts", "constraints", "non-goals", "authorized work", "remaining budget"):
             self.assertIn(required, router)
+        for required in ("map-back checkpoint", "two full-method attempts total", "subproblems", "consumed", "partial or unsuccessful"):
+            self.assertIn(required, router)
+        for status in ("confirmed", "draft", "verified", "candidate", "partial", "infeasible", "blocked"):
+            self.assertIn(status, shared)
+        for evidence_kind in ("supplied evidence", "executed checks", "observed results", "derived conclusions", "proposed checks"):
+            self.assertIn(evidence_kind, shared)
+        self.assertIn("a test plan is not a passing test", shared)
+        self.assertIn("do not call exhaustion proof of impossibility", shared)
+        self.assertIn("two full attempts total", shared)
 
 
 class TestSourceAndExamples(PluginContractTestCase):
@@ -594,24 +594,12 @@ class TestSourceAndExamples(PluginContractTestCase):
         )
 
     def test_drr_credit_carry_is_conditioned_on_remaining_backlogged(self) -> None:
-        for path in (
-            self.skill_path("analogize"),
-            PORTABLE_ROOT / "solve/references/worked-examples.md",
-        ):
-            text = re.sub(r"\s+", " ", read_text(path).lower())
-            self.assertRegex(
-                text,
-                r"residual deficit.{0,100}(?:only )?while (?:a |the )?queue "
-                r"(?:remains|stays) backlogged",
-                f"{path} must condition residual-deficit carry on backlog",
-            )
-            self.assertRegex(
-                text,
-                r"(?:queue (?:empties|drains).{0,80}deficit.{0,40}reset(?:s|ting)?"
-                r"(?: to)? zero|empty queue.{0,40}reset(?:s|ting)?.{0,40}deficit"
-                r".{0,20}(?: to)? zero)",
-                f"{path} must reset deficit when a queue becomes empty",
-            )
+        path = PORTABLE_ROOT / "solve/references/worked-examples.md"
+        text = re.sub(r"\s+", " ", read_text(path).lower())
+        self.assertRegex(text, r"residual deficit.{0,100}(?:only )?while (?:a |the )?queue (?:remains|stays) backlogged")
+        self.assertRegex(text, r"(?:queue (?:empties|drains).{0,80}deficit.{0,40}reset(?:s|ting)?(?: to)? zero|empty queue.{0,40}reset(?:s|ting)?.{0,40}deficit.{0,20}(?: to)? zero)")
+        module = read_text(PORTABLE_ROOT / "solve/references/methods/analogize.md")
+        self.assertNotIn("Deficit Round Robin", module, "domain instructions belong in examples")
 
     def test_legacy_namespace_and_old_skill_structures_are_absent_from_public_surface(self) -> None:
         for path in self.public_files():
@@ -647,30 +635,31 @@ class TestSourceAndExamples(PluginContractTestCase):
 class TestLeafContracts(PluginContractTestCase):
     def test_every_leaf_has_the_shared_workflow_structure(self) -> None:
         for leaf in LEAVES:
-            text = self.skill_text(leaf).lower()
-            self.assert_heading(text, r"(?i)(?:source.*(?:extension|authored)|(?:extension|authored).*source|provenance)", f"{leaf} needs a source-vs-extension section")
-            self.assert_heading(text, r"(?i)(?:shared )?(?:entry|problem) contract", f"{leaf} needs the shared entry contract")
-            self.assert_heading(text, r"(?i)(?:cheap.*candidate|candidate.*(?:transformation|route))", f"{leaf} needs a cheap-candidate section")
-            self.assert_heading(text, r"(?i)(?:full )?method", f"{leaf} needs a full-method section")
-            self.assert_heading(text, r"(?i)(?:result.*map.?back|map.?back.*result)", f"{leaf} needs a result/map-back section")
-            self.assert_heading(text, r"(?i)(?:failure modes?|common (?:mistakes|failures))", f"{leaf} needs failure modes")
-
-            entry = markdown_section(text, r"(?:shared )?(?:entry|problem) contract")
-            self.assertRegex(entry, r"\b(?:p|problem)\b", f"{leaf} entry contract must state P/problem")
-            self.assertRegex(entry, r"observable.{0,30}success criteria", f"{leaf} needs observable success criteria")
-            self.assertIn("fixed facts", entry, f"{leaf} must preserve fixed facts")
-            self.assertIn("constraints", entry, f"{leaf} must preserve constraints")
-            self.assertRegex(entry, r"missing.{0,40}(?:domain )?facts", f"{leaf} must gather missing facts")
+            with self.subTest(leaf=leaf):
+                entry = self.skill_text(leaf)
+                self.assertIn("../solve/references/workflow-contract.md", markdown_links(entry))
+                self.assertIn(f"../solve/references/methods/{leaf}.md", markdown_links(entry))
+                self.assertNotIn("Full method", markdown_headings(entry))
+                text = self.method_text(leaf)
+                for heading in ("provenance", "shared entry contract", "cheap candidate", "full method", "result and map-back", "failure modes"):
+                    self.assert_heading(text, rf"(?i){heading}", f"{leaf} lacks {heading}")
+                self.assertIn("../workflow-contract.md", markdown_links(text))
+                shared_entry = re.sub(r"\s+", " ", markdown_section(text, r"Shared entry contract")).lower()
+                for inherited in ("original problem", "criterion ids", "fixed facts", "constraints", "non-goals", "authorized work", "open/assumed", "remaining effort"):
+                    self.assertIn(inherited, shared_entry)
 
     def test_simplify_contract(self) -> None:
-        text = self.skill_text("simplify").lower()
+        text = self.method_text("simplify").lower()
         for required in ("constraints", "trivial", "skeleton", "one at a time", "map back"):
             self.assertIn(required, text)
         self.assertRegex(text, r"(?s)(?:restore|re-add).{0,180}constraints?.{0,100}one at a time|one at a time.{0,100}(?:restore|re-add).{0,180}constraints?")
-        self.assertRegex(text, r"(?s)first.{0,80}constraint.{0,100}(?:reintroduc|bring back|return).{0,60}(?:difficulty|hardness)")
+        normalized = re.sub(r"\s+", " ", text)
+        self.assertIn("first restoration that reintroduces difficulty under this order", normalized)
+        self.assertIn("not necessarily a sole cause", normalized)
+        self.assertIn("compare another restoration order", normalized)
 
     def test_analogize_contract(self) -> None:
-        text = self.skill_text("analogize").lower()
+        text = self.method_text("analogize").lower()
         for required in ("at least two", "fact", "mapping table", "break"):
             self.assertIn(required, text)
         self.assertRegex(text, r"(?s)(?:at least )?two.{0,80}candidate analog(?:y|ies).{0,180}(?:before|then).{0,80}(?:select|choose)")
@@ -678,38 +667,33 @@ class TestLeafContracts(PluginContractTestCase):
         self.assertRegex(text, r"(?s)break.{0,160}(?:decision|limit|failure)")
 
     def test_restate_contract(self) -> None:
-        text = self.skill_text("restate").lower()
+        text = self.method_text("restate").lower()
         for required in ("at least three", "fixed facts", "relaxation", "success criteria"):
             self.assertIn(required, text)
         self.assertRegex(text, r"(?s)(?:at least )?three.{0,100}(?:restatement|representation|viewpoint)")
         self.assertRegex(text, r"(?s)(?:label|mark).{0,80}(?:intentional )?relaxation")
 
     def test_generalize_contract(self) -> None:
-        text = self.skill_text("generalize").lower()
-        for required in ("shannon-derived", "result-first", "modern", "parameter", "instantiate"):
+        text = re.sub(r"\s+", " ", self.method_text("generalize")).lower()
+        for required in ("shannon-derived", "result-first", "modern", "parameter", "instantiate", "yagni"):
             self.assertIn(required, text)
-        self.assertRegex(text, r"(?s)shannon-derived.{0,180}(?:result-first|solved related|already[- ]found).{0,120}(?:result|principle)")
-        self.assertRegex(text, r"(?s)modern.{0,160}(?:structure-exposing|parameteriz)")
-        self.assertRegex(
-            text,
-            r"(?s)(?:produce|return).{0,100}both (?:labeled )?forms",
-            "generalize must produce both source-derived and modern forms",
-        )
-        self.assertRegex(
-            text,
-            r"(?s)compare.{0,100}(?:two|both) forms.{0,100}select.{0,100}stronger",
-            "generalize must compare both forms and select one for deeper work",
-        )
+        self.assertIn("assess both forms for applicability", text)
+        self.assertIn("if none is established, mark this form inapplicable", text)
+        self.assertIn("if no such axis is useful, mark this form inapplicable", text)
+        self.assertIn("when both apply, compare them and select", text)
+        self.assertIn("when only one applies, select it without manufacturing the other", text)
+        self.assertIn("if neither applies", text)
+        self.assertIn("does not authorize a second full-method attempt", text)
 
     def test_decompose_contract(self) -> None:
-        text = self.skill_text("decompose").lower()
+        text = self.method_text("decompose").lower()
         for required in ("more than one", "seam", "rejected", "information yield", "recompose"):
             self.assertIn(required, text)
         self.assertRegex(text, r"(?s)more than one.{0,100}candidate seam.{0,220}(?:choose|select).{0,120}(?:strong|reject)")
         self.assertRegex(text, r"(?s)recompose.{0,160}(?:cross-cutting|original|constraints)")
 
     def test_invert_is_logically_safe_and_reenters_debugging(self) -> None:
-        text = self.skill_text("invert").lower()
+        text = self.method_text("invert").lower()
         for required in (
             "necessary",
             "sufficient",
@@ -734,96 +718,62 @@ class TestDefineContract(PluginContractTestCase):
 
     def test_define_skill_has_house_structure(self) -> None:
         text = self.define_text()
-        self.assert_heading(text, r"(?i)direct-invocation boundaries", "define needs boundaries")
-        self.assert_heading(text, r"(?i)provenance", "define needs provenance")
-        self.assert_heading(text, r"(?i)entry contract", "define needs an entry contract")
-        self.assert_heading(text, r"(?im)^method$", "define needs a method section")
-        self.assert_heading(text, r"(?i)compact example", "define needs a compact example")
-        self.assert_heading(text, r"(?i)result and handoff", "define needs result-and-handoff")
-        self.assert_heading(text, r"(?i)failure modes", "define needs failure modes")
-        self.assertNotRegex(
-            "\n".join(markdown_headings(text)),
-            r"(?i)map.?back",
-            "define owes no map-back section",
-        )
+        for heading in ("entry and boundaries", "proportional first response", "method", "compact example", "result and handoff", "provenance and failure checks"):
+            self.assert_heading(text, rf"(?im)^{heading}$", f"define lacks {heading}")
+        self.assertIn("../solve/references/workflow-contract.md", markdown_links(text))
+        self.assertNotRegex("\n".join(markdown_headings(text)), r"(?i)map.?back")
 
-    def test_define_method_pins_ledger_marks_and_decision_point(self) -> None:
+    def test_define_preserves_authority_and_proportional_uncertainty(self) -> None:
         text = re.sub(r"\s+", " ", self.define_text().lower())
-        self.assertIn("observation, constraint, stake, or proposal", text)
-        self.assertRegex(text, r"if every proposal were never built")
-        self.assertIn("one rung past", text)
+        shared = re.sub(r"\s+", " ", read_text(PORTABLE_ROOT / "solve/references/workflow-contract.md")).lower()
         for mark in ("confirmed", "open", "assumed"):
-            self.assertIn(mark, text)
-        self.assertRegex(text, r"merely worse.{0,60}metric artifact.{0,60}no problem")
-        self.assertRegex(text, r"do-nothing or smallest-credible")
-        self.assertIn("no phases, durations, or workstreams", text)
-        self.assertIn("two to four closed confirmation questions", text)
-        self.assertIn("a deadline alone is not that reaffirmation", text)
-        self.assertIn("solution-complete is not problem-resolved", text)
+            self.assertIn(mark, shared)
+        for required in ("observations, constraints, stakes, and proposals", "binding implementation choice remains a constraint", "effectiveness remains a hypothesis", "at most two unanswered questions", "250 words", "at most once", "never treat silence as agreement", "do not invent"):
+            self.assertIn(required, text)
+        for required in ("threshold", "observation horizon", "proposed and unresolved", "hypotheses may overlap", "joint mechanism", "insufficient-evidence outcome", "draft plan with explicit assumptions", "do not substitute it unilaterally"):
+            self.assertIn(required, text)
+        self.assertIn("do not demand a separate mandate when operational criteria suffice", text)
+        self.assertIn("drafting a plan does not authorize implementing it", text)
+        self.assertIn("until another why leaves the owner's actionable decision context", text)
+        for required in ("metric artifact", "no continuing problem", "do-nothing or smallest credible", "outcome success distinct from artifact completion"):
+            self.assertIn(required, text)
 
     def test_define_handoff_contract_is_lossless(self) -> None:
-        text = re.sub(r"\s+", " ", self.define_text().lower())
-        self.assertIn(
-            "`p`, observable success criteria, fixed facts, constraints, "
-            "non-goals, and missing domain facts",
-            text,
-        )
-        self.assertIn("non-goals hand off as constraints", text)
-        self.assertRegex(
-            text,
-            r"open or assumed marks travel with the contract together with "
-            r"their settling questions",
-        )
-        self.assertRegex(text, r"hands the contract fields to that router's state step verbatim")
-        self.assertRegex(
-            text,
-            r"(?s)new stakeholder facts.{0,200}unreachable.{0,160}assumed"
-            r".{0,120}unresolved mark",
-        )
+        text = re.sub(r"\s+", " ", markdown_section(self.define_text(), r"Result and handoff")).lower()
+        for field in ("original contract", "criterion ids", "non-goals as constraints", "authorized work", "unresolved items with owners", "exact questions", "effort remaining"):
+            self.assertIn(field, text)
+        self.assertIn("definition and resolution statuses independently", text)
+        self.assertRegex(text, r"cannot confirm an open or assumed stakeholder item")
+        self.assertIn("do not send the same unchanged problem back", text)
 
     def test_router_adopts_define_contract(self) -> None:
         router = re.sub(r"\s+", " ", self.skill_text("solve").lower())
-        self.assertIn("adopt its non-goals as constraints", router)
-        self.assertRegex(
-            router,
-            r"carry any open or assumed marks.{0,80}settling questions"
-            r".{0,80}invariant ledger",
-        )
-        self.assertRegex(router, r"open with a named owner is exempt")
-        self.assertRegex(router, r"restate that status alongside `s`")
-        self.assertRegex(
-            router,
-            r"a carried stakeholder question marked assumed.{0,80}"
-            r"named owner is unreachable.{0,80}likewise exempt"
-            r".{0,100}mark counts as the unresolved fact for draft routing",
-        )
-
-        technique_selection = re.sub(
-            r"\s+",
-            " ",
-            read_text(
-                PORTABLE_ROOT / "solve/references/technique-selection.md"
-            ).lower(),
-        )
-        self.assertRegex(
-            technique_selection,
-            r"a mandate explicitly labeled open or assumed counts as stated for routing"
-            r".{0,80}remains draft.{0,80}its settling question travels with it",
-        )
+        self.assertIn("adopt an existing shared problem contract without reconstructing it", router)
+        for carried in ("non-goals remain constraints", "open or assumed", "questions with owners and marks", "definition status", "remaining budget"):
+            self.assertIn(carried, router)
+        self.assertIn("do not demand a separate mandate", router)
+        selection = re.sub(r"\s+", " ", read_text(PORTABLE_ROOT / "solve/references/technique-selection.md")).lower()
+        self.assertIn("workflow-contract.md", selection)
+        self.assertIn("open", selection)
+        self.assertIn("assumed", selection)
+        self.assertIn("operational", selection)
+        self.assertIn("mandate", selection)
 
     def test_define_is_absent_from_lens_table(self) -> None:
-        table = markdown_section(self.skill_text("solve"), r"sibling leaf paths")
-        self.assertTrue(table, "router needs its sibling leaf table")
+        table = markdown_section(self.skill_text("solve"), r"canonical method modules")
+        self.assertTrue(table, "router needs its canonical module table")
         self.assertNotIn("define", table.lower())
+        self.assertEqual({f"references/methods/{leaf}.md" for leaf in LEAVES}, set(markdown_links(table)) - {"references/worked-examples.md"})
 
     def test_define_provenance_disclaims_shannon(self) -> None:
-        text = self.define_text()
-        self.assertIn("Nothing here derives from Shannon", text)
-        for source in ("Polya", "Duncker", "Keeney", "Chamberlin"):
+        text = re.sub(r"\s+", " ", self.define_text())
+        self.assertIn("Nothing derives from Shannon's 1952 talk", text)
+        for source in ("Polya", "Duncker", "Keeney", "Chamberlin", "Platt", "Heuer"):
             self.assertIn(source, text)
 
 
 class TestDocumentationAndEvals(PluginContractTestCase):
+    """Public documentation and immutable v1 fixture shape, not current behavior."""
     def grader_path(self, case: str, stem: str) -> Path:
         return PLUGIN_ROOT / "evals/behavioral/v1" / case / "graders" / f"{stem}.md"
 
@@ -835,7 +785,7 @@ class TestDocumentationAndEvals(PluginContractTestCase):
         self.assertEqual(set(SKILLS), commands)
         self.assertNotRegex(
             text.lower(),
-            r"/(?:shannon|creative-thinking|hard-problems)(?:[\s:`-]|$)",
+            r"(?<![a-z0-9_/.-])/(?:shannon|creative-thinking|hard-problems)(?:[\s:`-]|$)",
         )
 
     def test_readme_links_standalone_testing_guidance(self) -> None:
@@ -1148,7 +1098,7 @@ class TestFileHygiene(PluginContractTestCase):
         artifacts = [
             path
             for path in standalone_files()
-            if path.suffix in {".md", ".json", ".yaml", ".py"}
+            if path.suffix in {".md", ".json", ".yaml", ".yml", ".py"}
         ]
         self.assertTrue(artifacts, "expected standalone plugin text artifacts")
         for path in artifacts:
